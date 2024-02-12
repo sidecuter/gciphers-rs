@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="gciphers-rs">
+	<schema id="com.github.sidecuter.gciphers_rs" path="/com/github/sidecuter/gciphers_rs/">
+	</schema>
+</schemalist>

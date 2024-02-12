@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=gciphers-rs
+Exec=gciphers-rs
+Icon=com.github.sidecuter.gciphers_rs
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true

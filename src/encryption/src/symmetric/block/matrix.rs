@@ -80,15 +80,6 @@ impl Matrix<f32> {
 }
 
 impl Matrix<isize> {
-    #[warn(dead_code)]
-    fn new(cols: usize, rows: usize) -> Matrix<isize> {
-        Matrix {
-            cols,
-            rows,
-            data: vec![0; cols * rows]
-        }
-    }
-
     fn max(&self) -> Result<isize, Box<dyn Error>> {
         Ok(*self.data.iter().max().ok_or(InvalidSize::new("Матрица пуста"))?)
     }
@@ -344,8 +335,9 @@ mod matrix_test {
 
     #[test]
     fn test_matrix_det0() {
-        let matr = Matrix::new(3, 3);
-        assert_eq!(Matrix::from(&matr).det().unwrap(), 0.);
+        let data: Vec<Vec<isize>> = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
+        let matr = Matrix::try_from(data).unwrap();
+        assert_eq!(Matrix::from(&matr).det().unwrap().round(), 0.);
     }
 
     #[test]

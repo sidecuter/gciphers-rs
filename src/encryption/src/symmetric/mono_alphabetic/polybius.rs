@@ -1,4 +1,5 @@
 use std::error::Error;
+use itertools::Itertools;
 use crate::alphabet::Alphabet;
 use crate::errors::{InvalidIndex, InvalidSize, NullSizedValue, OutOfBounds};
 
@@ -46,16 +47,13 @@ pub fn encrypt(phrase: &str, rows: &str, columns: &str) -> Result<String, Box<dy
     Ok(result)
 }
 
-pub fn decrypt(phrase: &str, rows: &str, columns: &str) -> Result<String, Box<dyn Error>> {
-    let table = validate_dec(phrase, rows, columns)?;
-    let mut result = String::new();
-    let mut letter = phrase.chars();
-    for _ in 0..phrase.chars().count() / 2 {
-        let row: usize = letter.next().unwrap().to_digit(10).unwrap() as usize;
-        let column: usize = letter.next().unwrap().to_digit(10).unwrap() as usize;
-        result.push(table.get(row, column));
-    }
-    Ok(result)
+pub fn decrypt(phrase: &str, rows: &str, cols: &str) -> Result<String, Box<dyn Error>> {
+    let table = validate_dec(phrase, rows, cols)?;
+    Ok(phrase.chars().tuples().map(|(row, col)| {
+        let row = row.to_digit(10).unwrap() as usize;
+        let col = col.to_digit(10).unwrap() as usize;
+        table.get(row, col)
+    }).collect())
 }
 
 fn validate(
@@ -79,17 +77,16 @@ fn validate_dec(
     if rows.len() == 0 { return Err(Box::new(NullSizedValue::new("Количество рядов"))); }
     if columns.len() == 0 { return Err(Box::new(NullSizedValue::new("Количество столбцов"))); }
     let table = Table::build(rows.parse()?, columns.parse()?)?;
-    let mut letter = phrase.chars();
-    for _ in 0..phrase.chars().count() / 2 {
-        let row: usize = letter.next().unwrap().to_digit(10).ok_or(InvalidIndex)? as usize;
-        let column: usize = letter.next().unwrap().to_digit(10).ok_or(InvalidIndex)? as usize;
+    for (row, col) in phrase.chars().tuples() {
+        let row = row.to_digit(10).ok_or(InvalidIndex)? as usize;
+        let col = col.to_digit(10).ok_or(InvalidIndex)? as usize;
         if row > table.last_row || row <= 0{
             return Err(Box::new(OutOfBounds::new("ряд")));
         }
-        if column > table.columns || column <= 0 {
+        if col > table.columns || col <= 0 {
             return Err(Box::new(OutOfBounds::new("столбец")));
         }
-        if column > table.last_column && row == table.last_row {
+        if col > table.last_column && row == table.last_row {
             return Err(Box::new(OutOfBounds::new("столбец")));
         }
     }

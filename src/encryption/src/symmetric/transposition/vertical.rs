@@ -108,9 +108,7 @@ fn prepare_keys(keys: &Vec<usize>) -> Result<Vec<usize>, Box<dyn Error>> {
     for (i, elem) in keys.iter().enumerate() {
         match result.iter_mut().nth(*elem - 1) {
             Some(elem) => *elem = i + 1,
-            None => return Err(
-                Box::new(InvalidKeyError::new("Ключ содержит невалидные значения"))
-            )
+            None => Err(InvalidKeyError::new("Ключ содержит невалидные значения"))?
         };
     }
     Ok(result)

@@ -157,4 +157,32 @@ mod cardano_tests {
         let result = table.extract(&directions);
         assert_eq!(result, "окно");
     }
+
+    #[test]
+    fn test_encrypt() {
+        let result = encrypt(
+            "окноокноокноокно",
+            vec![false, true, false, true,
+                 true, false, true, false,
+                 false, false, false, false,
+                 false, false, false, false],
+            4, 4,
+            vec![true, false, true]
+        ).unwrap();
+        assert_eq!(result, "ооккннооооккнноо");
+    }
+
+    #[test]
+    fn test_decrypt() {
+        let result = decrypt(
+            "ооккннооооккнноо",
+            vec![false, true, false, true,
+                 true, false, true, false,
+                 false, false, false, false,
+                 false, false, false, false],
+            4, 4,
+            vec![true, false, true]
+        ).unwrap();
+        assert_eq!(result, "окноокноокноокно");
+    }
 }

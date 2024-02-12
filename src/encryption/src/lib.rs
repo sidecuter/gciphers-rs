@@ -13,6 +13,7 @@ pub mod diffie_hellman;
 
 extern crate hex;
 extern crate num;
+extern crate itertools;
 
 pub use symmetric::mono_alphabetic::atbash;
 pub use symmetric::mono_alphabetic::caesar;

@@ -96,10 +96,9 @@ pub fn encrypt(phrase: &str, grid: Vec<bool>, rows: usize, cols: usize, dirs: Ve
     Ok(table.fill(phrase, &dirs))
 }
 
-pub fn decrypt(
-    phrase: &str, grid: Vec<bool>, rows: usize,
-    cols: usize, dirs: Vec<bool>
-) -> Result<String, Box<dyn Error>> {
+pub fn decrypt(phrase: &str, grid: Vec<bool>, rows: usize, cols: usize, dirs: Vec<bool>)
+    -> Result<String, Box<dyn Error>>
+{
     validate(phrase, &grid, rows, cols, &dirs)?;
     let mut table = CardanoTable::new_data(
         rows, cols, grid, validate_data(phrase, rows, cols)?
@@ -185,4 +184,34 @@ mod cardano_tests {
         ).unwrap();
         assert_eq!(result, "окноокноокноокно");
     }
+
+    #[test]
+    fn test_crypt() {
+        let result = encrypt(
+            "криптография",
+            vec![false, true, false, true,
+                 true, false, true, false,
+                 false, false, false, false,
+                 false, false, false, false],
+            4, 4,
+            vec![true, false, true]
+        ).unwrap();
+        assert_eq!(result, "ткоригпрлаьфидяи");
+    }
+
+    #[test]
+    fn test_crypt1() {
+        let result = decrypt(
+            "ткоригпрлаьфидяи",
+            vec![false, true, false, true,
+                 true, false, true, false,
+                 false, false, false, false,
+                 false, false, false, false],
+            4, 4,
+            vec![true, false, true]
+        ).unwrap();
+        assert_eq!(result, "криптография");
+    }
+
+
 }

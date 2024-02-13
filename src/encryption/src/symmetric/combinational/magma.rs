@@ -35,6 +35,39 @@ pub fn t_reverse(in_data: &[u8]) -> [u8; 4] {
     result
 }
 
+fn to_32(vec: &[u8]) -> u32 {
+    let mut result: u32;
+    result = vec[0] as u32;
+    result = (result << 8) + vec[1] as u32;
+    result = (result << 8) + vec[2] as u32;
+    result = (result << 8) + vec[3] as u32;
+    result
+}
+
+fn from_32(num: u32) -> [u8; 4] {
+    let mut result = [0; 4];
+    result[3] = (num & 0xff) as u8;
+    result[2] = ((num >> 8) & 0xff) as u8;
+    result[1] = ((num >> 16) & 0xff) as u8;
+    result[0] = ((num >> 24) & 0xff) as u8;
+    result
+}
+
+fn add_32(left: &[u8], right: &[u8]) -> [u8; 4] {
+    let left_32: u32 = to_32(left);
+    let right_32: u32 = to_32(right);
+    let result_32 = ((left_32 as u64 + right_32 as u64) % 0x100000000u64) as u32;
+    from_32(result_32)
+}
+
+pub fn g(key: &[u8], a: &[u8]) -> [u8; 4] {
+    let internal = add_32(a, key);
+    let internal = t(&internal);
+    let mut result_32 = to_32(&internal);
+    result_32 = (result_32 << 11) | (result_32>>21);
+    from_32(result_32)
+}
+
 #[cfg(test)]
 mod magma_tests {
     use crate::methods::{str_to_bytes, bytes_to_hex, hex_to_bytes, bytes_to_string};
@@ -105,5 +138,30 @@ mod magma_tests {
         }
         let result = bytes_to_string(&data).unwrap();
         assert_eq!(result, "от одного порченого яблока весь воз загнивает.");
+    }
+
+    #[test]
+    fn test_g() {
+        let keys: [[u8; 4]; 4] = [
+            [ 0x87, 0x65, 0x43, 0x21 ],
+            [ 0xfd, 0xcb, 0xc2, 0x0c ],
+            [ 0x7e, 0x79, 0x1a, 0x4b ],
+            [ 0xc7, 0x65, 0x49, 0xec ]
+        ];
+        let validate: [[u8; 4]; 4] = [
+            [ 0xfd, 0xcb, 0xc2, 0x0c ],
+            [ 0x7e, 0x79, 0x1a, 0x4b ],
+            [ 0xc7, 0x65, 0x49, 0xec ],
+            [ 0x97, 0x91, 0xc8, 0x49 ]
+        ];
+        let data: [[u8; 4]; 4] = [
+            [ 0xfe, 0xdc, 0xba, 0x98 ],
+            [ 0x87, 0x65, 0x43, 0x21 ],
+            [ 0xfd, 0xcb, 0xc2, 0x0c ],
+            [ 0x7e, 0x79, 0x1a, 0x4b ],
+        ];
+        for (i , datum) in data.iter().enumerate() {
+            assert_eq!(validate.get(i).unwrap(), &g(keys.get(i).unwrap(), datum));
+        }
     }
 }

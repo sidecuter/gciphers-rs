@@ -86,9 +86,8 @@ fn get_result(alphabet: &Alphabet, buffer: &Vec<Vec<isize>>, row: usize, col: us
 pub fn encrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
     let alphabet = Alphabet::new();
     let (keys, row) = get_rows_and_keys(&alphabet, phrase, key)?;
-    let mut buffer: Vec<Vec<isize>> = Vec::new();
+    let mut buffer: Vec<Vec<isize>> = vec![Vec::new(); keys.len()];
     let mut letter = phrase.chars();
-    for _ in 0..keys.len() { buffer.push(Vec::new()); }
     for _ in 0..row {
         for j in 0..keys.len() {
             let val = match letter.next() {

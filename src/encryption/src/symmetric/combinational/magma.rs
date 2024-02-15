@@ -1,3 +1,6 @@
+use std::error::Error;
+use crate::methods::{bytes_to_hex, hex_to_bytes, modd, str_to_bytes};
+
 const S_TABLE: [[u8; 16]; 8] = [
     [1,7,14,13,0,5,8,3,4,15,10,6,9,12,11,2],
     [8,14,2,5,6,9,1,12,15,4,11,0,13,10,3,7],
@@ -9,58 +12,54 @@ const S_TABLE: [[u8; 16]; 8] = [
     [12,4,6,2,10,5,11,9,14,8,13,7,0,3,15,1]
 ];
 
-pub fn t (in_data: &[u8]) -> [u8; 4] {
-    let mut result: [u8; 4] = [0; 4];
-    for (i, number) in in_data.iter().enumerate() {
+pub fn t (in_data: &[u8]) -> Vec<u8> {
+    in_data[0..4].iter().enumerate().map(|(i, number)| {
         let first_part_byte = (*number & 0xf0) >> 4;
         let sec_part_byte = *number & 0x0f;
         let first_part_byte = S_TABLE[i * 2][first_part_byte as usize];
         let sec_part_byte = S_TABLE[i * 2 + 1][sec_part_byte as usize];
-        result[i] = (first_part_byte << 4) | sec_part_byte;
-    }
-    result
+        (first_part_byte << 4) | sec_part_byte
+    }).collect()
 }
 
-pub fn t_reverse(in_data: &[u8]) -> [u8; 4] {
-    let mut result = [0; 4];
-    for (i, number) in in_data.iter().enumerate() {
+pub fn t_reverse(in_data: &[u8]) -> Vec<u8> {
+    in_data[0..4].iter().enumerate().map(|(i, number)| {
         let first_part_byte = (*number & 0xf0) >> 4;
         let sec_part_byte = *number & 0x0f;
         let first_part_byte = S_TABLE[i * 2].iter()
             .position(|x| *x == first_part_byte).unwrap() as u8;
         let sec_part_byte = S_TABLE[i * 2 + 1].iter()
             .position(|x| *x == sec_part_byte).unwrap() as u8;
-        result[i] = (first_part_byte << 4) | sec_part_byte;
-    }
-    result
+        (first_part_byte << 4) | sec_part_byte
+    }).collect()
 }
 
 fn to_32(vec: &[u8]) -> u32 {
-    let mut result: u32;
-    result = vec[0] as u32;
-    result = (result << 8) + vec[1] as u32;
-    result = (result << 8) + vec[2] as u32;
-    result = (result << 8) + vec[3] as u32;
+    let mut shift: i32 = 24;
+    vec.iter().map(|num| {
+        let result = (*num as u32) << shift;
+        shift -= 8;
+        result
+    }).sum()
+}
+
+fn from_32(num: u32) -> Vec<u8> {
+    let mut result = Vec::new();
+    result.push(((num >> 24) & 0xff) as u8);
+    result.push(((num >> 16) & 0xff) as u8);
+    result.push(((num >> 8) & 0xff) as u8);
+    result.push((num & 0xff) as u8);
     result
 }
 
-fn from_32(num: u32) -> [u8; 4] {
-    let mut result = [0; 4];
-    result[3] = (num & 0xff) as u8;
-    result[2] = ((num >> 8) & 0xff) as u8;
-    result[1] = ((num >> 16) & 0xff) as u8;
-    result[0] = ((num >> 24) & 0xff) as u8;
-    result
-}
-
-fn add_32(left: &[u8], right: &[u8]) -> [u8; 4] {
+fn add_32(left: &[u8], right: &[u8]) -> Vec<u8> {
     let left_32: u32 = to_32(left);
     let right_32: u32 = to_32(right);
     let result_32 = ((left_32 as u64 + right_32 as u64) % 0x100000000u64) as u32;
     from_32(result_32)
 }
 
-pub fn g(key: &[u8], a: &[u8]) -> [u8; 4] {
+pub fn g(key: &[u8], a: &[u8]) -> Vec<u8> {
     let internal = add_32(a, key);
     let internal = t(&internal);
     let mut result_32 = to_32(&internal);
@@ -68,25 +67,94 @@ pub fn g(key: &[u8], a: &[u8]) -> [u8; 4] {
     from_32(result_32)
 }
 
+fn xor_32(left: &[u8], right: &[u8]) -> Vec<u8> {
+    left.iter().zip(right.iter()).map(|(left, right)| *left ^ *right).collect()
+}
+
+fn expand_key(key: &[u8]) -> Vec<&[u8]> {
+    let mut result: Vec<&[u8]> = (0..24).map(|i| {
+        let i1 = modd(i*4, 32);
+        let i2 = modd(i*4+4, 32);
+        let i2 = if i2 == 0 { i2 + 32 } else { i2 };
+        &key[i1..i2]
+    }).collect();
+    result.append(&mut (0..=7).rev().map(
+        |i| &key[i*4..i*4+4]
+    ).collect::<Vec<&[u8]>>());
+    result
+}
+
+fn feistel_net_node(left: &[u8], right: &[u8], key: &[u8]) -> (Vec<u8>, Vec<u8>) {
+    (right.iter().map(|x| *x).collect(), xor_32(left, &g(right, key)))
+}
+
+fn feistel_net_32(val: &[u8], keys: &Vec<&[u8]>) -> Vec<u8> {
+    let mut left: Vec<u8> = val[0..4].iter().map(|x| *x).collect();
+    let mut right: Vec<u8> = val[4..8].iter().map(|x| *x).collect();
+    let mut key = keys[0..32].iter();
+    (right, left) = loop {
+        //println!("{}, {}", bytes_to_hex(&left), bytes_to_hex(&right));
+        (left, right) = match key.next() {
+            Some(key) => feistel_net_node(&left, &right, *key),
+            None => break (left, right)
+        };
+    };
+    let mut result = left;
+    result.append(&mut right);
+    result
+}
+
+fn proto(phrase: &str, keys: &Vec<&[u8]>) ->Result<String, Box<dyn Error>> {
+    let phrase = hex_to_bytes(phrase)?;
+    let mut result = String::new();
+    for fragment in phrase.windows(8).step_by(8) {
+        let fragment = feistel_net_32(fragment, &keys);
+        result.push_str(&bytes_to_hex(&fragment));
+    }
+    Ok(result)
+}
+
+pub fn encrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
+    let key = hex_to_bytes(key)?;
+    let expanded_keys = expand_key(&key);
+    proto(phrase, &expanded_keys)
+}
+
+pub fn decrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
+    let key = hex_to_bytes(key)?;
+    let mut expanded_keys = expand_key(&key);
+    expanded_keys.reverse();
+    proto(phrase, &expanded_keys)
+}
+
+pub fn prepair_phrase(phrase: &str) -> Result<String, Box<dyn Error>>{
+    Ok(bytes_to_hex(&str_to_bytes(phrase, 8)?))
+}
+
 #[cfg(test)]
 mod magma_tests {
     use crate::methods::{str_to_bytes, bytes_to_hex, hex_to_bytes, bytes_to_string};
     use super::*;
 
+    fn init_data() -> (Vec<Vec<u8>>, Vec<Vec<u8>>) {
+        let l1: Vec<Vec<u8>> = vec![
+            vec![ 0xfd, 0xb9, 0x75, 0x31 ],
+            vec![ 0x2a, 0x19, 0x6f, 0x34 ],
+            vec![ 0xeb, 0xd9, 0xf0, 0x3a ],
+            vec![ 0xb0, 0x39, 0xbb, 0x3d ]
+        ];
+        let l2: Vec<Vec<u8>> = vec![
+            vec![ 0x2a, 0x19, 0x6f, 0x34 ],
+            vec![ 0xeb, 0xd9, 0xf0, 0x3a ],
+            vec![ 0xb0, 0x39, 0xbb, 0x3d ],
+            vec![ 0x68, 0x69, 0x54, 0x33 ]
+        ];
+        (l1, l2)
+    }
+
     #[test]
     fn test_t() {
-        let data: [[u8; 4]; 4] = [
-            [ 0xfd, 0xb9, 0x75, 0x31 ],
-            [ 0x2a, 0x19, 0x6f, 0x34 ],
-            [ 0xeb, 0xd9, 0xf0, 0x3a ],
-            [ 0xb0, 0x39, 0xbb, 0x3d ]
-        ];
-        let validate: [[u8; 4]; 4] = [
-            [ 0x2a, 0x19, 0x6f, 0x34 ],
-            [ 0xeb, 0xd9, 0xf0, 0x3a ],
-            [ 0xb0, 0x39, 0xbb, 0x3d ],
-            [ 0x68, 0x69, 0x54, 0x33 ]
-        ];
+        let (data, validate) = init_data();
         for (values, results) in data.iter().zip(validate.iter()) {
             let result = t(values);
             assert_eq!(*results, result);
@@ -95,18 +163,7 @@ mod magma_tests {
 
     #[test]
     fn test_t_reverse() {
-        let data: [[u8; 4]; 4] = [
-            [ 0x2a, 0x19, 0x6f, 0x34 ],
-            [ 0xeb, 0xd9, 0xf0, 0x3a ],
-            [ 0xb0, 0x39, 0xbb, 0x3d ],
-            [ 0x68, 0x69, 0x54, 0x33 ]
-        ];
-        let validate: [[u8; 4]; 4] = [
-            [ 0xfd, 0xb9, 0x75, 0x31 ],
-            [ 0x2a, 0x19, 0x6f, 0x34 ],
-            [ 0xeb, 0xd9, 0xf0, 0x3a ],
-            [ 0xb0, 0x39, 0xbb, 0x3d ]
-        ];
+        let (validate, data) = init_data();
         for (values, results) in data.iter().zip(validate.iter()) {
             let result = t_reverse(values);
             assert_eq!(*results, result);
@@ -142,26 +199,73 @@ mod magma_tests {
 
     #[test]
     fn test_g() {
-        let keys: [[u8; 4]; 4] = [
-            [ 0x87, 0x65, 0x43, 0x21 ],
-            [ 0xfd, 0xcb, 0xc2, 0x0c ],
-            [ 0x7e, 0x79, 0x1a, 0x4b ],
-            [ 0xc7, 0x65, 0x49, 0xec ]
+        let keys: Vec<Vec<u8>> = vec![
+            vec![ 0x87, 0x65, 0x43, 0x21 ],
+            vec![ 0xfd, 0xcb, 0xc2, 0x0c ],
+            vec![ 0x7e, 0x79, 0x1a, 0x4b ],
+            vec![ 0xc7, 0x65, 0x49, 0xec ]
         ];
-        let validate: [[u8; 4]; 4] = [
-            [ 0xfd, 0xcb, 0xc2, 0x0c ],
-            [ 0x7e, 0x79, 0x1a, 0x4b ],
-            [ 0xc7, 0x65, 0x49, 0xec ],
-            [ 0x97, 0x91, 0xc8, 0x49 ]
+        let validate: Vec<Vec<u8>> = vec![
+            vec![ 0xfd, 0xcb, 0xc2, 0x0c ],
+            vec![ 0x7e, 0x79, 0x1a, 0x4b ],
+            vec![ 0xc7, 0x65, 0x49, 0xec ],
+            vec![ 0x97, 0x91, 0xc8, 0x49 ]
         ];
-        let data: [[u8; 4]; 4] = [
-            [ 0xfe, 0xdc, 0xba, 0x98 ],
-            [ 0x87, 0x65, 0x43, 0x21 ],
-            [ 0xfd, 0xcb, 0xc2, 0x0c ],
-            [ 0x7e, 0x79, 0x1a, 0x4b ],
+        let data: Vec<Vec<u8>> = vec![
+            vec![ 0xfe, 0xdc, 0xba, 0x98 ],
+            vec![ 0x87, 0x65, 0x43, 0x21 ],
+            vec![ 0xfd, 0xcb, 0xc2, 0x0c ],
+            vec![ 0x7e, 0x79, 0x1a, 0x4b ],
         ];
         for (i , datum) in data.iter().enumerate() {
             assert_eq!(validate.get(i).unwrap(), &g(keys.get(i).unwrap(), datum));
         }
+    }
+
+    #[test]
+    fn test_feistel_net_node() {
+        let key: Vec<u8> = vec![ 0x87, 0x65, 0x43, 0x21 ];
+        let left: Vec<u8> = vec![ 0xfe, 0xdc, 0xba, 0x98 ];
+        let right: Vec<u8> = vec![ 0xfd, 0xcb, 0xc2, 0x0c ];
+        let (right_r, left_r) = feistel_net_node(&left, &right, &key);
+        let (r, l) = feistel_net_node(&left_r, &right_r, &key);
+        assert_eq!((left, right), (l, r));
+    }
+
+    #[test]
+    fn test_expand_key() {
+        let validate: Vec<&str> = vec![
+            "ffeeddcc", "bbaa9988", "77665544", "33221100", "f0f1f2f3", "f4f5f6f7", "f8f9fafb", "fcfdfeff",
+            "ffeeddcc", "bbaa9988", "77665544", "33221100", "f0f1f2f3", "f4f5f6f7", "f8f9fafb", "fcfdfeff",
+            "ffeeddcc", "bbaa9988", "77665544", "33221100", "f0f1f2f3", "f4f5f6f7", "f8f9fafb", "fcfdfeff",
+            "fcfdfeff", "f8f9fafb", "f4f5f6f7", "f0f1f2f3", "33221100", "77665544", "bbaa9988", "ffeeddcc",
+        ];
+        let key = hex_to_bytes("ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff").unwrap();
+        let mut val = validate.iter();
+        for key in expand_key(&key) {
+            assert_eq!(*val.next().unwrap(), bytes_to_hex(key));
+        }
+    }
+
+    #[test]
+    fn test_feistel_net_32() {
+        let key = hex_to_bytes("ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff").unwrap();
+        let val = hex_to_bytes("fedcba9876543210").unwrap();
+        let result = bytes_to_hex(&feistel_net_32(&val, &expand_key(&key)));
+        assert_eq!(result, "4ee901e5c2d8ca3d");
+    }
+
+    #[test]
+    fn test_encrypt() {
+        let key = "ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff";
+        let phrase = "fedcba9876543210";
+        assert_eq!(encrypt(phrase, key).unwrap(), "4ee901e5c2d8ca3d");
+    }
+
+    #[test]
+    fn test_decrypt() {
+        let key = "ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff";
+        let phrase = "4ee901e5c2d8ca3d";
+        assert_eq!(decrypt(phrase, key).unwrap(), "fedcba9876543210");
     }
 }

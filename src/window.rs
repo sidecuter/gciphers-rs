@@ -63,7 +63,9 @@ glib::wrapper! {
 }
 
 impl GciphersRsWindow {
-    pub fn new<P: glib::IsA<gtk::Application>>(application: &P) -> Self {
+    pub fn new<P>(application: &P) -> Self
+        where P: IsA<gtk::Application>
+    {
         glib::Object::builder()
             .property("application", application)
             .build()

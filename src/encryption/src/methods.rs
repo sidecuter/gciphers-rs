@@ -23,12 +23,12 @@ pub fn str_to_bytes(text: &str, border: usize) -> Result<Vec<u8>, Box<dyn Error>
     Ok(bytes)
 }
 
-pub fn bytes_to_string(buffer: &Vec<u8>) -> Result<String, Box<dyn Error>> {
+pub fn bytes_to_string(buffer: &[u8]) -> Result<String, Box<dyn Error>> {
     let result = str::from_utf8(buffer)?.to_owned();
     Ok(result.trim_matches('\u{0000}').to_owned())
 }
 
-pub fn bytes_to_hex(buffer: &Vec<u8>) -> String {
+pub fn bytes_to_hex(buffer: &[u8]) -> String {
     encode(buffer)
 }
 

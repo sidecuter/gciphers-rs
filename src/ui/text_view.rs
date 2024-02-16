@@ -29,7 +29,7 @@ mod imp {
     #[template(resource = "/com/github/sidecuter/gciphers_rs/text_view.ui")]
     pub struct UITextView {
         #[template_child]
-        text: TemplateChild<gtk::TextBuffer>
+        pub text: TemplateChild<gtk::TextBuffer>
     }
 
     #[glib::object_subclass]
@@ -50,20 +50,6 @@ mod imp {
     impl ObjectImpl for UITextView {}
     impl WidgetImpl for UITextView {}
     impl TextViewImpl for UITextView {}
-
-    impl UITextView {
-        pub fn get_text(&self) -> String {
-            self.text.get().text(
-                &self.text.get().start_iter(),
-                &self.text.get().end_iter(),
-                false
-            ).to_string()
-        }
-
-        pub fn set_text(&self, text: &str) {
-            self.text.set_text(text);
-        }
-    }
 }
 
 glib::wrapper! {
@@ -73,6 +59,18 @@ glib::wrapper! {
 }
 
 impl UITextView {
+    pub fn get_text(&self) -> String {
+        self.imp().text.get().text(
+            &self.imp().text.get().start_iter(),
+            &self.imp().text.get().end_iter(),
+            false
+        ).to_string()
+    }
+
+    pub fn set_text(&self, text: &str) {
+        self.imp().text.set_text(text);
+    }
+
     pub fn new() -> Self {
         glib::Object::builder().build()
     }

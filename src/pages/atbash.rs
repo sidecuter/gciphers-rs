@@ -18,12 +18,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+use gtk::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::glib;
 
 mod imp {
     use gtk::{Button, template_callbacks};
+    use gtk::prelude::WidgetExt;
     use crate::ui::text_view::UITextView;
+    use crate::window::GCiphersRsWindow;
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
@@ -55,14 +58,46 @@ mod imp {
 
     #[template_callbacks]
     impl GCiphersRsAtbash {
+        fn call_p<T>(&self, action: T)
+            where T: FnOnce(&GCiphersRsWindow, &str) -> Option<String>
+        {
+            let root = self.obj().root().expect("Не удалось получить окно");
+            let window = root
+                .downcast_ref::<gtk::Window>()
+                .expect("Приведение не удалось")
+                .downcast_ref::<GCiphersRsWindow>()
+                .expect("Приведение не удалось");
+            let text = self.text_view.get().get_text();
+            let result = action(window, &text);
+            if let Some(result) = result {
+                self.text_view.get().set_text(&result);
+            }
+        }
+
         #[template_callback]
         fn on_encrypt_click(&self, _button: &Button) {
-
+            self.call_p(|window, text| {
+                match encryption::atbash::encrypt(&window.mask_text(text)) {
+                    Ok(res) => Some(res),
+                    Err(e) => {
+                        window.show_message(&e.to_string());
+                        None
+                    }
+                }
+            })
         }
 
         #[template_callback]
         fn on_decrypt_click(&self, _button: &Button) {
-
+            self.call_p(|window, text| {
+                match encryption::atbash::decrypt(text) {
+                    Ok(res) => Some(window.demask_text(&res)),
+                    Err(e) => {
+                        window.show_message(&e.to_string());
+                        None
+                    }
+                }
+            })
         }
     }
 }

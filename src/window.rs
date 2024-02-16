@@ -155,4 +155,38 @@ impl GCiphersRsWindow {
             self.imp().stack.add_named(&page, Some(&page.widget_name().to_string()));
         }
     }
+
+    pub fn get_prettify_state(&self) -> bool {
+        self.imp().prettify.state()
+    }
+
+    pub fn mask_text(&self, text: &str) -> String {
+        let mut result = String::from(text);
+        result = result.replace(".", "тчк")
+            .replace(",", "зпт")
+            .replace("-", "тире");
+        if !self.get_prettify_state() {
+            result.replace(" ", "")
+        } else {
+            result.replace(" ", "прб")
+        }
+    }
+
+    pub fn demask_text(&self, text: &str) -> String {
+        let result = String::from(text);
+        if self.get_prettify_state() {
+            result.replace("тчк", ".")
+                .replace("зпт", ",")
+                .replace("тире", "-")
+                .replace("прб", " ")
+        } else {
+            result
+        }
+    }
+
+    pub fn show_message(&self, message: &str) {
+        let toast_message = adw::Toast::new(message);
+        toast_message.set_timeout(3);
+        self.imp().toast.get().add_toast(toast_message);
+    }
 }

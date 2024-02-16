@@ -25,6 +25,8 @@ mod pages;
 mod ui;
 mod menu_entry;
 
+extern crate encryption;
+
 use self::application::GciphersRsApplication;
 use self::window::GCiphersRsWindow;
 

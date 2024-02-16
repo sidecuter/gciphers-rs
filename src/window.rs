@@ -25,6 +25,8 @@ use gtk::{gio, glib};
 use crate::menu_entry::GCiphersMenuEntry;
 use crate::pages::atbash::GCiphersRsAtbash;
 use crate::pages::caesar::GCiphersRsCaesar;
+use crate::pages::polybius::GCiphersRsPolybius;
+use crate::pages::trithemium::GCiphersRsTrithemium;
 
 mod imp {
     use std::cell::RefCell;
@@ -129,6 +131,8 @@ impl GCiphersRsWindow {
         let pages = gio::ListStore::new::<Bin>();
         pages.append(&GCiphersRsAtbash::new());
         pages.append(&GCiphersRsCaesar::new());
+        pages.append(&GCiphersRsPolybius::new());
+        pages.append(&GCiphersRsTrithemium::new());
         self.imp().pages.replace(Some(pages));
     }
 

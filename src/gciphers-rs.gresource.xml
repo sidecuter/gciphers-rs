@@ -7,6 +7,8 @@
     <file alias="menu_entry.ui" compressed="true" preprocess="xml-stripblanks">resources/menu_entry.ui</file>
     <file alias="atbash.ui" compressed="true" preprocess="xml-stripblanks">resources/atbash.ui</file>
     <file alias="caesar.ui" compressed="true" preprocess="xml-stripblanks">resources/caesar.ui</file>
+    <file alias="polybius.ui" compressed="true" preprocess="xml-stripblanks">resources/polybius.ui</file>
+    <file alias="trithemium.ui" compressed="true" preprocess="xml-stripblanks">resources/trithemium.ui</file>
     <file alias="style.css" compressed="true">resources/style.css</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
   </gresource>

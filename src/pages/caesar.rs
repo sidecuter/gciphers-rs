@@ -114,18 +114,7 @@ mod imp {
         #[template_callback]
         fn on_decrypt_click(&self, _button: &Button) {
             self.call_p(|window, text, key| {
-                let key = match transform(key, "Ключ") {
-                    Ok(val) => val,
-                    Err(e) => {
-                        window.show_message(&e.to_string());
-                        return None;
-                    }
-                };
-                if key < 0 {
-                    window.show_message("Сдвиг не может быть отрицательным");
-                    return None;
-                }
-                match decrypt(text, key) {
+                match decrypt(text, self.check_key(window, key)?) {
                     Ok(res) => Some(window.demask_text(&res)),
                     Err(e) => {
                         window.show_message(&e.to_string());

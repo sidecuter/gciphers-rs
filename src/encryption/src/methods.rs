@@ -48,6 +48,11 @@ pub fn validate_two(alphabet: &Alphabet, text: &str, key: &str) -> Result<(), Bo
     alphabet.validate(key)
 }
 
+pub fn transform(val: &str, message: &str) -> Result<isize, Box<dyn Error>> {
+    if val.len() == 0 { Err(NullSizedValue::new(message))?;}
+   Ok(val.parse::<isize>()?)
+}
+
 #[cfg(test)]
 mod method_tests {
     use crate::methods::{bytes_to_hex, bytes_to_string, hex_to_bytes, str_to_bytes};

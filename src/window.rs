@@ -24,6 +24,7 @@ use adw::subclass::prelude::*;
 use gtk::{gio, glib};
 use crate::menu_entry::GCiphersMenuEntry;
 use crate::pages::atbash::GCiphersRsAtbash;
+use crate::pages::caesar::GCiphersRsCaesar;
 
 mod imp {
     use std::cell::RefCell;
@@ -127,12 +128,16 @@ impl GCiphersRsWindow {
     fn setup_pages(&self) {
         let pages = gio::ListStore::new::<Bin>();
         pages.append(&GCiphersRsAtbash::new());
+        pages.append(&GCiphersRsCaesar::new());
         self.imp().pages.replace(Some(pages));
     }
 
     fn setup_labels(&self) {
         let labels = vec![
-            "Атбаш".to_string()
+            String::from("Атбаш"),
+            String::from("Цезарь"),
+            String::from("Полибий"),
+            String::from("Тритемий"),
         ];
         self.imp().labels.replace(Some(labels));
         self.setup_rows();

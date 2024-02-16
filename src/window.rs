@@ -18,31 +18,44 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+use adw::Bin;
 use gtk::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::{gio, glib};
+use crate::menu_entry::GCiphersMenuEntry;
+use crate::pages::atbash::GCiphersRsAtbash;
 
 mod imp {
+    use std::cell::RefCell;
+    use gtk::{template_callbacks, ToggleButton};
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
     #[template(resource = "/com/github/sidecuter/gciphers_rs/window.ui")]
-    pub struct GciphersRsWindow {
-        // Template widgets
+    pub struct GCiphersRsWindow {
+        pub labels: RefCell<Option<Vec<String>>>,
+        pub pages: RefCell<Option<gio::ListStore>>,
         #[template_child]
-        pub header_bar: TemplateChild<adw::HeaderBar>,
+        pub toast: TemplateChild<adw::ToastOverlay>,
         #[template_child]
-        pub label: TemplateChild<gtk::Label>,
+        pub split_view: TemplateChild<adw::OverlaySplitView>,
+        #[template_child]
+        pub stack: TemplateChild<adw::ViewStack>,
+        #[template_child]
+        pub list_rows: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub prettify: TemplateChild<gtk::Switch>
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GciphersRsWindow {
-        const NAME: &'static str = "GciphersRsWindow";
-        type Type = super::GciphersRsWindow;
+    impl ObjectSubclass for GCiphersRsWindow {
+        const NAME: &'static str = "GCiphersRsWindow";
+        type Type = super::GCiphersRsWindow;
         type ParentType = adw::ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
+            klass.bind_template_callbacks();
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -50,24 +63,96 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for GciphersRsWindow {}
-    impl WidgetImpl for GciphersRsWindow {}
-    impl WindowImpl for GciphersRsWindow {}
-    impl ApplicationWindowImpl for GciphersRsWindow {}
-    impl AdwApplicationWindowImpl for GciphersRsWindow {}
+    impl ObjectImpl for GCiphersRsWindow {
+        fn constructed(&self) {
+            self.parent_constructed();
+            let obj = self.obj();
+            obj.setup_labels();
+            obj.setup_pages();
+            obj.setup_stack();
+            self.list_rows.get().select_row(self.list_rows.get().row_at_index(0).as_ref());
+        }
+    }
+
+    impl WidgetImpl for GCiphersRsWindow {}
+    impl WindowImpl for GCiphersRsWindow {}
+    impl ApplicationWindowImpl for GCiphersRsWindow {}
+    impl AdwApplicationWindowImpl for GCiphersRsWindow {}
+
+    #[template_callbacks]
+    impl GCiphersRsWindow {
+        #[template_callback]
+        fn on_row_selected(&self, row: Option<&gtk::ListBoxRow>) {
+            if let Some(row) = row {
+                let obj = self.obj();
+                let index = row.index();
+                let label_text = obj.imp().labels.borrow().as_ref().expect("Ну так получилось")
+                    .get(index as usize)
+                    .expect("Invalid index").clone();
+                obj.set_title(Some(&label_text));
+                let page = obj.pages().item(index as u32)
+                    .expect("Index error")
+                    .downcast_ref::<Bin>()
+                    .expect("Must be Adw.Bin").clone();
+                self.stack.set_visible_child_name(&page.widget_name().to_string());
+            }
+        }
+
+        #[template_callback]
+        fn on_sidebar_button_toggle(&self, _button: &ToggleButton) {
+            self.split_view.set_show_sidebar(!self.split_view.shows_sidebar());
+        }
+    }
 }
 
 glib::wrapper! {
-    pub struct GciphersRsWindow(ObjectSubclass<imp::GciphersRsWindow>)
-        @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,        @implements gio::ActionGroup, gio::ActionMap;
+    pub struct GCiphersRsWindow(ObjectSubclass<imp::GCiphersRsWindow>)
+        @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, adw::ApplicationWindow,
+        @implements gio::ActionGroup, gio::ActionMap;
 }
 
-impl GciphersRsWindow {
+impl GCiphersRsWindow {
     pub fn new<P>(application: &P) -> Self
         where P: IsA<gtk::Application>
     {
         glib::Object::builder()
             .property("application", application)
             .build()
+    }
+
+    fn pages(&self) -> gio::ListStore {
+        self.imp().pages.borrow().clone().expect("Could not get pages")
+    }
+
+    fn setup_pages(&self) {
+        let pages = gio::ListStore::new::<Bin>();
+        pages.append(&GCiphersRsAtbash::new());
+        self.imp().pages.replace(Some(pages));
+    }
+
+    fn setup_labels(&self) {
+        let labels = vec![
+            "Атбаш".to_string()
+        ];
+        self.imp().labels.replace(Some(labels));
+        self.setup_rows();
+    }
+
+    fn setup_rows(&self) {
+        let imp = self.imp();
+        for label in self.imp().labels.borrow().as_ref().expect("Пусто") {
+            imp.list_rows.append(&GCiphersMenuEntry::new(&label.clone()));
+        }
+    }
+
+    fn setup_stack(&self) {
+        let pages = self.pages();
+        for page in pages.into_iter() {
+            let page = page.expect("Привет")
+                .downcast_ref::<Bin>()
+                .expect("Needs to be an Adw.Bin")
+                .clone();
+            self.imp().stack.add_named(&page, Some(&page.widget_name().to_string()));
+        }
     }
 }

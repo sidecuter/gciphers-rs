@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/com/github/sidecuter/gciphers_rs">
-    <file preprocess="xml-stripblanks">window.ui</file>
+    <file alias="window.ui" compressed="true" preprocess="xml-stripblanks">resources/window.ui</file>
+    <file alias="atbash.ui" compressed="true" preprocess="xml-stripblanks">resources/atbash.ui</file>
+    <file alias="entry.ui" compressed="true" preprocess="xml-stripblanks">resources/entry.ui</file>
+    <file alias="text_view.ui" compressed="true" preprocess="xml-stripblanks">resources/text_view.ui</file>
+    <file alias="menu_entry.ui" compressed="true" preprocess="xml-stripblanks">resources/menu_entry.ui</file>
+    <file alias="style.css" compressed="true">resources/style.css</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
   </gresource>
 </gresources>

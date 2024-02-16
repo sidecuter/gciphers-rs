@@ -42,8 +42,8 @@
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "file:///home/sidecuter/projects/rust"
+                    "type" : "dir",
+                    "path" : "."
                 }
             ]
         }

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="GCiphersRsWindow" parent="AdwApplicationWindow">
+        <property name="width-request">360</property>
+        <property name="height-request">200</property>
+        <property name="default-width">800</property>
+        <property name="default-height">400</property>
+        <child>
+            <object class="AdwBreakpoint">
+                <condition>max-width: 400sp</condition>
+                <setter object="split_view" property="collapsed">True</setter>
+            </object>
+        </child>
+        <property name="content">
+            <object class="AdwToastOverlay" id="toast">
+                <child>
+                    <object class="AdwOverlaySplitView" id="split_view">
+                        <property name="sidebar">
+                            <object class="AdwToolbarView">
+                                <property name="content">
+                                    <object class="AdwBin">
+                                        <child>
+                                            <object class="GtkScrolledWindow">
+                                                <child>
+                                                    <object class="GtkListBox" id="list_rows">
+                                                        <signal name="row_selected" handler="on_row_selected" swapped="true"/>
+                                                        <style>
+                                                            <class name="navigation-sidebar"/>
+                                                        </style>
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </property>
+                                <child type="top">
+                                    <object class="AdwHeaderBar">
+                                        <property name="show-title">False</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </property>
+                        <property name="content">
+                            <object class="AdwToolbarView" id="content">
+                                <child type="top">
+                                    <object class="AdwHeaderBar">
+                                        <property name="show-title">True</property>
+                                        <property name="show-back-button">True</property>
+                                        <child type="start">
+                                            <object class="GtkToggleButton">
+                                                <signal name="toggled" handler="on_sidebar_button_toggle" swapped="true"/>
+                                                <property name="active">true</property>
+                                                <property name="icon-name">view-dual-symbolic</property>
+                                                <property name="tooltip-text">Отобразить боковое меню</property>
+                                            </object>
+                                        </child>
+                                        <child type="end">
+                                            <object class="GtkBox">
+                                                <child>
+                                                    <object class="GtkSwitch" id="prettify"/>
+                                                </child>
+                                                <child>
+                                                    <object class="GtkMenuButton">
+                                                        <property name="primary">True</property>
+                                                        <property name="icon-name">open-menu-symbolic</property>
+                                                        <property name="tooltip-text">Меню</property>
+                                                        <property name="menu-model">primary_menu</property>
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                                <property name="content">
+                                    <object class="AdwViewStack" id="stack">
+                                    </object>
+                                </property>
+                            </object>
+                        </property>
+                    </object>
+                </child>
+            </object>
+        </property>
+    </template>
+    <menu id="primary_menu">
+        <section>
+            <item>
+                <attribute name="label">Хоткеи</attribute>
+                <attribute name="action">win.show-help-overlay</attribute>
+            </item>
+            <item>
+                <attribute name="label">О приложении</attribute>
+                <attribute name="action">app.about</attribute>
+            </item>
+        </section>
+    </menu>
+</interface>

@@ -30,24 +30,25 @@ mod imp {
     use crate::ui::text_view::UITextView;
     use crate::window::GCiphersRsWindow;
 
-    use encryption::caesar::*;
-    use encryption::methods::transform;
+    use encryption::polybius::*;
 
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/com/github/sidecuter/gciphers_rs/caesar.ui")]
-    pub struct GCiphersRsCaesar {
+    #[template(resource = "/com/github/sidecuter/gciphers_rs/polybius.ui")]
+    pub struct GCiphersRsPolybius {
         #[template_child]
         pub text_view: TemplateChild<UITextView>,
         #[template_child]
-        pub key: TemplateChild<UIEntry>
+        pub rows: TemplateChild<UIEntry>,
+        #[template_child]
+        pub columns: TemplateChild<UIEntry>,
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GCiphersRsCaesar {
-        const NAME: &'static str = "GCiphersRsCaesar";
-        type Type = super::GCiphersRsCaesar;
+    impl ObjectSubclass for GCiphersRsPolybius {
+        const NAME: &'static str = "GCiphersRsPolybius";
+        type Type = super::GCiphersRsPolybius;
         type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
@@ -60,14 +61,14 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for GCiphersRsCaesar {}
-    impl WidgetImpl for GCiphersRsCaesar {}
-    impl BinImpl for GCiphersRsCaesar {}
+    impl ObjectImpl for GCiphersRsPolybius {}
+    impl WidgetImpl for GCiphersRsPolybius {}
+    impl BinImpl for GCiphersRsPolybius {}
 
     #[template_callbacks]
-    impl GCiphersRsCaesar {
+    impl GCiphersRsPolybius {
         fn call_p<T>(&self, action: T)
-            where T: Fn(&GCiphersRsWindow, &str, &str) -> Option<String>
+            where T: Fn(&GCiphersRsWindow, &str, &str, &str) -> Option<String>
         {
             let root = self.obj().root().expect("Не удалось получить окно");
             let window = root
@@ -76,32 +77,18 @@ mod imp {
                 .downcast_ref::<GCiphersRsWindow>()
                 .expect("Приведение не удалось");
             let text = self.text_view.get().get_text();
-            let key = self.key.get().text().to_string();
-            let result = action(window, &text, &key);
+            let rows = self.rows.get().text().to_string();
+            let cols = self.columns.get().text().to_string();
+            let result = action(window, &text, &rows, &cols);
             if let Some(result) = result {
                 self.text_view.get().set_text(&result);
             }
         }
 
-        fn check_key(&self, window: &GCiphersRsWindow, key: &str) -> Option<isize> {
-            let key = match transform(key, "Ключ") {
-                Ok(val) => val,
-                Err(e) => {
-                    window.show_message(&e.to_string());
-                    return None;
-                }
-            };
-            if key < 0 {
-                window.show_message("Сдвиг не может быть отрицательным");
-                return None;
-            }
-            Some(key)
-        }
-
         #[template_callback]
         fn on_encrypt_click(&self, _button: &Button) {
-            self.call_p(|window, text, key| {
-                match encrypt(&window.mask_text(text), self.check_key(window, key)?) {
+            self.call_p(|window, text, rows, cols| {
+                match encrypt(&window.mask_text(text), rows, cols) {
                     Ok(res) => Some(res),
                     Err(e) => {
                         window.show_message(&e.to_string());
@@ -113,8 +100,8 @@ mod imp {
 
         #[template_callback]
         fn on_decrypt_click(&self, _button: &Button) {
-            self.call_p(|window, text, key| {
-                match decrypt(text, self.check_key(window, key)?) {
+            self.call_p(|window, text, rows, cols| {
+                match decrypt(text, rows, cols) {
                     Ok(res) => Some(window.demask_text(&res)),
                     Err(e) => {
                         window.show_message(&e.to_string());
@@ -127,12 +114,12 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub struct GCiphersRsCaesar(ObjectSubclass<imp::GCiphersRsCaesar>)
+    pub struct GCiphersRsPolybius(ObjectSubclass<imp::GCiphersRsPolybius>)
         @extends gtk::Widget, adw::Bin,
         @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-impl GCiphersRsCaesar {
+impl GCiphersRsPolybius {
     pub fn new() -> Self {
         glib::Object::builder().build()
     }

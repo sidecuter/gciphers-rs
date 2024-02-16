@@ -1,4 +1,4 @@
-/* atbash.rs
+/* trithemium.rs
  *
  * Copyright 2024 Alexander Svobodov
  *
@@ -29,21 +29,21 @@ mod imp {
     use crate::ui::text_view::UITextView;
     use crate::window::GCiphersRsWindow;
 
-    use encryption::atbash::*;
+    use encryption::trithemium::*;
 
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/com/github/sidecuter/gciphers_rs/atbash.ui")]
-    pub struct GCiphersRsAtbash {
+    #[template(resource = "/com/github/sidecuter/gciphers_rs/trithemium.ui")]
+    pub struct GCiphersRsTrithemium {
         #[template_child]
         pub text_view: TemplateChild<UITextView>
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GCiphersRsAtbash {
-        const NAME: &'static str = "GCiphersRsAtbash";
-        type Type = super::GCiphersRsAtbash;
+    impl ObjectSubclass for GCiphersRsTrithemium {
+        const NAME: &'static str = "GCiphersRsTrithemium";
+        type Type = super::GCiphersRsTrithemium;
         type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
@@ -56,12 +56,12 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for GCiphersRsAtbash {}
-    impl WidgetImpl for GCiphersRsAtbash {}
-    impl BinImpl for GCiphersRsAtbash {}
+    impl ObjectImpl for GCiphersRsTrithemium {}
+    impl WidgetImpl for GCiphersRsTrithemium {}
+    impl BinImpl for GCiphersRsTrithemium {}
 
     #[template_callbacks]
-    impl GCiphersRsAtbash {
+    impl GCiphersRsTrithemium {
         fn call_p<T>(&self, action: T)
             where T: FnOnce(&GCiphersRsWindow, &str) -> Option<String>
         {
@@ -107,12 +107,12 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub struct GCiphersRsAtbash(ObjectSubclass<imp::GCiphersRsAtbash>)
+    pub struct GCiphersRsTrithemium(ObjectSubclass<imp::GCiphersRsTrithemium>)
         @extends gtk::Widget, adw::Bin,
         @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-impl GCiphersRsAtbash {
+impl GCiphersRsTrithemium {
     pub fn new() -> Self {
         glib::Object::builder().build()
     }

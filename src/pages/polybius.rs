@@ -1,4 +1,4 @@
-/* caesar.rs
+/* polybius.rs
  *
  * Copyright 2024 Alexander Svobodov
  *

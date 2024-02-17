@@ -3,3 +3,4 @@ build/
 target/
 src/fix
 src/gciphers-rs.gresource
+.run/

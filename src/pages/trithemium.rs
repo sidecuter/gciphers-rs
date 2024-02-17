@@ -71,7 +71,7 @@ mod imp {
                 .expect("Приведение не удалось")
                 .downcast_ref::<GCiphersRsWindow>()
                 .expect("Приведение не удалось");
-            let text = self.text_view.get().get_text();
+            let text = self.text_view.get().get_text().to_lowercase();
             let result = action(window, &text);
             if let Some(result) = result {
                 self.text_view.get().set_text(&result);

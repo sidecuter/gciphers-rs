@@ -19,6 +19,7 @@
         <file alias="vertical.ui" compressed="true" preprocess="xml-stripblanks">resources/vertical.ui</file>
         <file alias="cardano.ui" compressed="true" preprocess="xml-stripblanks">resources/cardano.ui</file>
         <file alias="feistel.ui" compressed="true" preprocess="xml-stripblanks">resources/feistel.ui</file>
+        <file alias="shenon.ui" compressed="true" preprocess="xml-stripblanks">resources/shenon.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     </gresource>

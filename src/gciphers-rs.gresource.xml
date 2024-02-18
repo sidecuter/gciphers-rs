@@ -16,6 +16,7 @@
         <file alias="stable.ui" compressed="true" preprocess="xml-stripblanks">resources/stable.ui</file>
         <file alias="matrix.ui" compressed="true" preprocess="xml-stripblanks">resources/matrix.ui</file>
         <file alias="playfair.ui" compressed="true" preprocess="xml-stripblanks">resources/playfair.ui</file>
+        <file alias="vertical.ui" compressed="true" preprocess="xml-stripblanks">resources/vertical.ui</file>
         <file alias="cardano.ui" compressed="true" preprocess="xml-stripblanks">resources/cardano.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>

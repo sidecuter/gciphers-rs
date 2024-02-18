@@ -32,6 +32,7 @@ use crate::pages::cardano::GCiphersRsCardano;
 use crate::pages::matrix::GCiphersRsMatrix;
 use crate::pages::playfair::GCiphersRsPlayfair;
 use crate::pages::stable::GCiphersRsStable;
+use crate::pages::vetrical::GCiphersRsVertical;
 use crate::pages::vigenere::GCiphersRsVigenere;
 
 mod imp {
@@ -144,6 +145,7 @@ impl GCiphersRsWindow {
         pages.append(&GCiphersRsStable::new());
         pages.append(&GCiphersRsMatrix::new());
         pages.append(&GCiphersRsPlayfair::new());
+        pages.append(&GCiphersRsVertical::new());
         pages.append(&GCiphersRsCardano::new());
         self.imp().pages.replace(Some(pages));
     }
@@ -159,6 +161,7 @@ impl GCiphersRsWindow {
             String::from("S таблица"),
             String::from("Матричный"),
             String::from("Плейфер"),
+            String::from("Вертикальный"),
             String::from("Кардано"),
         ];
         self.imp().labels.replace(Some(labels));

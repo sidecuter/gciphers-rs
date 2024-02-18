@@ -84,7 +84,7 @@ fn expand_key(key: &[u8]) -> Vec<&[u8]> {
     result
 }
 
-fn feistel_net_node(left: &[u8], right: &[u8], key: &[u8]) -> (Vec<u8>, Vec<u8>) {
+pub fn feistel_net_node(left: &[u8], right: &[u8], key: &[u8]) -> (Vec<u8>, Vec<u8>) {
     (right.iter().map(|x| *x).collect(), xor_32(left, &g(right, key)))
 }
 
@@ -93,7 +93,6 @@ fn feistel_net_32(val: &[u8], keys: &Vec<&[u8]>) -> Vec<u8> {
     let mut right: Vec<u8> = val[4..8].iter().map(|x| *x).collect();
     let mut key = keys[0..32].iter();
     (right, left) = loop {
-        //println!("{}, {}", bytes_to_hex(&left), bytes_to_hex(&right));
         (left, right) = match key.next() {
             Some(key) => feistel_net_node(&left, &right, *key),
             None => break (left, right)

@@ -28,6 +28,7 @@ use crate::pages::caesar::GCiphersRsCaesar;
 use crate::pages::polybius::GCiphersRsPolybius;
 use crate::pages::trithemium::GCiphersRsTrithemium;
 use crate::pages::belazo::GCiphersRsBelazo;
+use crate::pages::cardano::GCiphersRsCardano;
 use crate::pages::matrix::GCiphersRsMatrix;
 use crate::pages::playfair::GCiphersRsPlayfair;
 use crate::pages::stable::GCiphersRsStable;
@@ -143,6 +144,7 @@ impl GCiphersRsWindow {
         pages.append(&GCiphersRsStable::new());
         pages.append(&GCiphersRsMatrix::new());
         pages.append(&GCiphersRsPlayfair::new());
+        pages.append(&GCiphersRsCardano::new());
         self.imp().pages.replace(Some(pages));
     }
 
@@ -157,6 +159,7 @@ impl GCiphersRsWindow {
             String::from("S таблица"),
             String::from("Матричный"),
             String::from("Плейфер"),
+            String::from("Кардано"),
         ];
         self.imp().labels.replace(Some(labels));
         self.setup_rows();
@@ -176,6 +179,7 @@ impl GCiphersRsWindow {
                 .downcast_ref::<Bin>()
                 .expect("Needs to be an Adw.Bin")
                 .clone();
+            let _name = page.widget_name().to_string();
             self.imp().stack.add_named(&page, Some(&page.widget_name().to_string()));
         }
     }

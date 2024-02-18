@@ -14,6 +14,7 @@
         <file alias="vigenere.ui" compressed="true" preprocess="xml-stripblanks">resources/vigenere.ui</file>
         <file alias="stable.ui" compressed="true" preprocess="xml-stripblanks">resources/stable.ui</file>
         <file alias="matrix.ui" compressed="true" preprocess="xml-stripblanks">resources/matrix.ui</file>
+        <file alias="playfair.ui" compressed="true" preprocess="xml-stripblanks">resources/playfair.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     </gresource>

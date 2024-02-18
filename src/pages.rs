@@ -6,3 +6,4 @@ pub mod belazo;
 pub mod vigenere;
 pub mod stable;
 pub mod matrix;
+pub mod playfair;

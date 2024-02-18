@@ -1,4 +1,4 @@
-/* belazo.rs
+/* vigenere.rs
  *
  * Copyright 2024 Alexander Svobodov
  *
@@ -30,13 +30,13 @@ mod imp {
     use crate::ui::text_view::UITextView;
     use crate::window::GCiphersRsWindow;
 
-    use encryption::belazo::*;
+    use encryption::vigenere::*;
 
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/com/github/sidecuter/gciphers_rs/belazo.ui")]
-    pub struct GCiphersRsBelazo {
+    #[template(resource = "/com/github/sidecuter/gciphers_rs/vigenere.ui")]
+    pub struct GCiphersRsVigenere {
         #[template_child]
         pub text_view: TemplateChild<UITextView>,
         #[template_child]
@@ -44,9 +44,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GCiphersRsBelazo {
-        const NAME: &'static str = "GCiphersRsBelazo";
-        type Type = super::GCiphersRsBelazo;
+    impl ObjectSubclass for GCiphersRsVigenere {
+        const NAME: &'static str = "GCiphersRsVigenere";
+        type Type = super::GCiphersRsVigenere;
         type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
@@ -59,12 +59,12 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for GCiphersRsBelazo {}
-    impl WidgetImpl for GCiphersRsBelazo {}
-    impl BinImpl for GCiphersRsBelazo {}
+    impl ObjectImpl for GCiphersRsVigenere {}
+    impl WidgetImpl for GCiphersRsVigenere {}
+    impl BinImpl for GCiphersRsVigenere {}
 
     #[template_callbacks]
-    impl GCiphersRsBelazo {
+    impl GCiphersRsVigenere {
         fn call_p<T>(&self, action: T)
             where T: Fn(&GCiphersRsWindow, &str, &str) -> Option<String>
         {
@@ -111,12 +111,12 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub struct GCiphersRsBelazo(ObjectSubclass<imp::GCiphersRsBelazo>)
+    pub struct GCiphersRsVigenere(ObjectSubclass<imp::GCiphersRsVigenere>)
         @extends gtk::Widget, adw::Bin,
         @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-impl GCiphersRsBelazo {
+impl GCiphersRsVigenere {
     pub fn new() -> Self {
         glib::Object::builder().build()
     }

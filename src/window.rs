@@ -28,6 +28,7 @@ use crate::pages::caesar::GCiphersRsCaesar;
 use crate::pages::polybius::GCiphersRsPolybius;
 use crate::pages::trithemium::GCiphersRsTrithemium;
 use crate::pages::belazo::GCiphersRsBelazo;
+use crate::pages::vigenere::GCiphersRsVigenere;
 
 mod imp {
     use std::cell::RefCell;
@@ -135,6 +136,7 @@ impl GCiphersRsWindow {
         pages.append(&GCiphersRsPolybius::new());
         pages.append(&GCiphersRsTrithemium::new());
         pages.append(&GCiphersRsBelazo::new());
+        pages.append(&GCiphersRsVigenere::new());
         self.imp().pages.replace(Some(pages));
     }
 
@@ -145,6 +147,7 @@ impl GCiphersRsWindow {
             String::from("Полибий"),
             String::from("Тритемий"),
             String::from("Белазо"),
+            String::from("Виженере"),
         ];
         self.imp().labels.replace(Some(labels));
         self.setup_rows();

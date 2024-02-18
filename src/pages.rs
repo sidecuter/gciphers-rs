@@ -9,3 +9,4 @@ pub mod matrix;
 pub mod playfair;
 pub mod cardano;
 pub mod vetrical;
+pub mod feistel;

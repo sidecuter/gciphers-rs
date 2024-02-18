@@ -14,12 +14,7 @@ pub fn modd(num: isize, limit: usize) -> usize {
 }
 
 pub fn str_to_bytes(text: &str, border: usize) -> Result<Vec<u8>, Box<dyn Error>> {
-    let mut bytes = hex_to_bytes(&encode(text))?;
-    let null_count = border - bytes.len() % border;
-    if null_count > 0 {
-        let null = vec![0_u8; null_count];
-        bytes.extend(null.into_iter());
-    }
+    let bytes = hex_to_bytes(&encode(text), border)?;
     Ok(bytes)
 }
 
@@ -32,8 +27,14 @@ pub fn bytes_to_hex(buffer: &[u8]) -> String {
     encode(buffer)
 }
 
-pub fn hex_to_bytes(text: &str) -> Result<Vec<u8>, Box<dyn Error>> {
-    Ok(decode(text)?)
+pub fn hex_to_bytes(text: &str, border: usize) -> Result<Vec<u8>, Box<dyn Error>> {
+    let mut bytes_vec = decode(text)?;
+    let null_count = bytes_vec.len() % border;
+    if null_count > 0 {
+        let null = vec![0_u8; border - null_count];
+        bytes_vec.extend(null.into_iter());
+    }
+    Ok(bytes_vec)
 }
 
 pub fn validate_single(alphabet: &Alphabet, phrase: &str) -> Result<(), Box<dyn Error>> {
@@ -69,7 +70,7 @@ mod method_tests {
     fn test_hex_to_bytes() {
         let valid: Vec<u8> = vec![120, 215];
         let buf = "78d7".to_string();
-        let result = hex_to_bytes(&buf).unwrap();
+        let result = hex_to_bytes(&buf, 2).unwrap();
         assert_eq!(result, valid);
     }
 
@@ -93,7 +94,7 @@ mod method_tests {
     #[should_panic]
     fn test_hex_to_bytes_panic() {
         let buf = "78g7".to_string();
-        hex_to_bytes(&buf).unwrap();
+        hex_to_bytes(&buf, 2).unwrap();
     }
     #[test]
     #[should_panic]

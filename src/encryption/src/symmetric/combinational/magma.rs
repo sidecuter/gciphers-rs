@@ -105,7 +105,7 @@ fn feistel_net_32(val: &[u8], keys: &Vec<&[u8]>) -> Vec<u8> {
 }
 
 fn proto(phrase: &str, keys: &Vec<&[u8]>) ->Result<String, Box<dyn Error>> {
-    let phrase = hex_to_bytes(phrase)?;
+    let phrase = hex_to_bytes(phrase, 8)?;
     let mut result = String::new();
     for fragment in phrase.windows(8).step_by(8) {
         let fragment = feistel_net_32(fragment, &keys);
@@ -115,13 +115,13 @@ fn proto(phrase: &str, keys: &Vec<&[u8]>) ->Result<String, Box<dyn Error>> {
 }
 
 pub fn encrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
-    let key = hex_to_bytes(key)?;
+    let key = hex_to_bytes(key, 32)?;
     let expanded_keys = expand_key(&key);
     proto(phrase, &expanded_keys)
 }
 
 pub fn decrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
-    let key = hex_to_bytes(key)?;
+    let key = hex_to_bytes(key, 32)?;
     let mut expanded_keys = expand_key(&key);
     expanded_keys.reverse();
     proto(phrase, &expanded_keys)
@@ -186,7 +186,8 @@ mod magma_tests {
     #[test]
     fn test_t_decrypt() {
         let bytes = hex_to_bytes(
-            "c812e316e83756dc663759dc633758dc63f7eb71c812e31ccebdeb75c814eb7fc81aeb7fe83f70dc6e3754dc633757dc68f7eb76c811e314cebb2bdc623756dc6cf7eb79c817eb72c814eb7ec815eb7cc811e316e357cb6c"
+            "c812e316e83756dc663759dc633758dc63f7eb71c812e31ccebdeb75c814eb7fc81aeb7fe83f70dc6e3754dc633757dc68f7eb76c811e314cebb2bdc623756dc6cf7eb79c817eb72c814eb7ec815eb7cc811e316e357cb6c",
+            4
         ).unwrap();
         let mut data = Vec::new();
         for i in (0..bytes.len()).step_by(4) {
@@ -240,7 +241,10 @@ mod magma_tests {
             "ffeeddcc", "bbaa9988", "77665544", "33221100", "f0f1f2f3", "f4f5f6f7", "f8f9fafb", "fcfdfeff",
             "fcfdfeff", "f8f9fafb", "f4f5f6f7", "f0f1f2f3", "33221100", "77665544", "bbaa9988", "ffeeddcc",
         ];
-        let key = hex_to_bytes("ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff").unwrap();
+        let key = hex_to_bytes(
+            "ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+            32
+        ).unwrap();
         let mut val = validate.iter();
         for key in expand_key(&key) {
             assert_eq!(*val.next().unwrap(), bytes_to_hex(key));
@@ -249,8 +253,11 @@ mod magma_tests {
 
     #[test]
     fn test_feistel_net_32() {
-        let key = hex_to_bytes("ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff").unwrap();
-        let val = hex_to_bytes("fedcba9876543210").unwrap();
+        let key = hex_to_bytes(
+            "ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+            32
+        ).unwrap();
+        let val = hex_to_bytes("fedcba9876543210", 8).unwrap();
         let result = bytes_to_hex(&feistel_net_32(&val, &expand_key(&key)));
         assert_eq!(result, "4ee901e5c2d8ca3d");
     }

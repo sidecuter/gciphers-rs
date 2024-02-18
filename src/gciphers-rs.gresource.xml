@@ -4,6 +4,7 @@
         <file alias="window.ui" compressed="true" preprocess="xml-stripblanks">resources/window.ui</file>
         <file alias="entry.ui" compressed="true" preprocess="xml-stripblanks">resources/entry.ui</file>
         <file alias="text_view.ui" compressed="true" preprocess="xml-stripblanks">resources/text_view.ui</file>
+        <file alias="matrix_grid.ui" compressed="true" preprocess="xml-stripblanks">resources/matrix_grid.ui</file>
         <file alias="menu_entry.ui" compressed="true" preprocess="xml-stripblanks">resources/menu_entry.ui</file>
         <file alias="atbash.ui" compressed="true" preprocess="xml-stripblanks">resources/atbash.ui</file>
         <file alias="caesar.ui" compressed="true" preprocess="xml-stripblanks">resources/caesar.ui</file>
@@ -12,6 +13,7 @@
         <file alias="belazo.ui" compressed="true" preprocess="xml-stripblanks">resources/belazo.ui</file>
         <file alias="vigenere.ui" compressed="true" preprocess="xml-stripblanks">resources/vigenere.ui</file>
         <file alias="stable.ui" compressed="true" preprocess="xml-stripblanks">resources/stable.ui</file>
+        <file alias="matrix.ui" compressed="true" preprocess="xml-stripblanks">resources/matrix.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     </gresource>

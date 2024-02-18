@@ -10,6 +10,8 @@
         <file alias="polybius.ui" compressed="true" preprocess="xml-stripblanks">resources/polybius.ui</file>
         <file alias="trithemium.ui" compressed="true" preprocess="xml-stripblanks">resources/trithemium.ui</file>
         <file alias="belazo.ui" compressed="true" preprocess="xml-stripblanks">resources/belazo.ui</file>
+        <file alias="vigenere.ui" compressed="true" preprocess="xml-stripblanks">resources/vigenere.ui</file>
+        <file alias="stable.ui" compressed="true" preprocess="xml-stripblanks">resources/stable.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     </gresource>

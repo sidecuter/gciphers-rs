@@ -1,4 +1,4 @@
-/* trithemium.rs
+/* vigenere.rs
  *
  * Copyright 2024 Alexander Svobodov
  *
@@ -25,25 +25,28 @@ use gtk::prelude::*;
 mod imp {
     use gtk::{Button, template_callbacks};
     use gtk::prelude::WidgetExt;
+    use crate::ui::entry::UIEntry;
 
     use crate::ui::text_view::UITextView;
     use crate::window::GCiphersRsWindow;
 
-    use encryption::trithemium::*;
+    use encryption::vigenere::*;
 
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/com/github/sidecuter/gciphers_rs/trithemium.ui")]
-    pub struct GCiphersRsTrithemium {
+    #[template(resource = "/com/github/sidecuter/gciphers_rs/vigenere.ui")]
+    pub struct GCiphersRsVigenere {
         #[template_child]
-        pub text_view: TemplateChild<UITextView>
+        pub text_view: TemplateChild<UITextView>,
+        #[template_child]
+        pub key: TemplateChild<UIEntry>
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GCiphersRsTrithemium {
-        const NAME: &'static str = "GCiphersRsTrithemium";
-        type Type = super::GCiphersRsTrithemium;
+    impl ObjectSubclass for GCiphersRsVigenere {
+        const NAME: &'static str = "GCiphersRsVigenere";
+        type Type = super::GCiphersRsVigenere;
         type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
@@ -56,14 +59,14 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for GCiphersRsTrithemium {}
-    impl WidgetImpl for GCiphersRsTrithemium {}
-    impl BinImpl for GCiphersRsTrithemium {}
+    impl ObjectImpl for GCiphersRsVigenere {}
+    impl WidgetImpl for GCiphersRsVigenere {}
+    impl BinImpl for GCiphersRsVigenere {}
 
     #[template_callbacks]
-    impl GCiphersRsTrithemium {
+    impl GCiphersRsVigenere {
         fn call_p<T>(&self, action: T)
-            where T: FnOnce(&GCiphersRsWindow, &str) -> Option<String>
+            where T: Fn(&GCiphersRsWindow, &str, &str) -> Option<String>
         {
             let root = self.obj().root().expect("Не удалось получить окно");
             let window = root
@@ -72,7 +75,8 @@ mod imp {
                 .downcast_ref::<GCiphersRsWindow>()
                 .expect("Приведение не удалось");
             let text = self.text_view.get().get_text().to_lowercase();
-            let result = action(window, &text);
+            let key = self.key.get().text().to_string().to_lowercase();
+            let result = action(window, &text, &key);
             if let Some(result) = result {
                 self.text_view.get().set_text(&result);
             }
@@ -80,8 +84,8 @@ mod imp {
 
         #[template_callback]
         fn on_encrypt_click(&self, _button: &Button) {
-            self.call_p(|window, text| {
-                match encrypt(&window.mask_text(text)) {
+            self.call_p(|window, text, key| {
+                match encrypt(&window.mask_text(text), key) {
                     Ok(res) => Some(res),
                     Err(e) => {
                         window.show_message(&e.to_string());
@@ -93,8 +97,8 @@ mod imp {
 
         #[template_callback]
         fn on_decrypt_click(&self, _button: &Button) {
-            self.call_p(|window, text| {
-                match decrypt(text) {
+            self.call_p(|window, text, key| {
+                match decrypt(text, key) {
                     Ok(res) => Some(window.demask_text(&res)),
                     Err(e) => {
                         window.show_message(&e.to_string());
@@ -107,12 +111,12 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub struct GCiphersRsTrithemium(ObjectSubclass<imp::GCiphersRsTrithemium>)
+    pub struct GCiphersRsVigenere(ObjectSubclass<imp::GCiphersRsVigenere>)
         @extends gtk::Widget, adw::Bin,
         @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-impl GCiphersRsTrithemium {
+impl GCiphersRsVigenere {
     pub fn new() -> Self {
         glib::Object::builder().build()
     }

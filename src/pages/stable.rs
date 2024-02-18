@@ -1,4 +1,4 @@
-/* trithemium.rs
+/* stable.rs
  *
  * Copyright 2024 Alexander Svobodov
  *
@@ -29,21 +29,22 @@ mod imp {
     use crate::ui::text_view::UITextView;
     use crate::window::GCiphersRsWindow;
 
-    use encryption::trithemium::*;
+    use encryption::magma::{t, t_reverse};
+    use encryption::methods::{bytes_to_hex, bytes_to_string, hex_to_bytes, str_to_bytes};
 
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/com/github/sidecuter/gciphers_rs/trithemium.ui")]
-    pub struct GCiphersRsTrithemium {
+    #[template(resource = "/com/github/sidecuter/gciphers_rs/stable.ui")]
+    pub struct GCiphersRsStable {
         #[template_child]
         pub text_view: TemplateChild<UITextView>
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GCiphersRsTrithemium {
-        const NAME: &'static str = "GCiphersRsTrithemium";
-        type Type = super::GCiphersRsTrithemium;
+    impl ObjectSubclass for GCiphersRsStable {
+        const NAME: &'static str = "GCiphersRsStable";
+        type Type = super::GCiphersRsStable;
         type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
@@ -56,12 +57,12 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for GCiphersRsTrithemium {}
-    impl WidgetImpl for GCiphersRsTrithemium {}
-    impl BinImpl for GCiphersRsTrithemium {}
+    impl ObjectImpl for GCiphersRsStable {}
+    impl WidgetImpl for GCiphersRsStable {}
+    impl BinImpl for GCiphersRsStable {}
 
     #[template_callbacks]
-    impl GCiphersRsTrithemium {
+    impl GCiphersRsStable {
         fn call_p<T>(&self, action: T)
             where T: FnOnce(&GCiphersRsWindow, &str) -> Option<String>
         {
@@ -71,7 +72,7 @@ mod imp {
                 .expect("Приведение не удалось")
                 .downcast_ref::<GCiphersRsWindow>()
                 .expect("Приведение не удалось");
-            let text = self.text_view.get().get_text().to_lowercase();
+            let text = self.text_view.get().get_text();
             let result = action(window, &text);
             if let Some(result) = result {
                 self.text_view.get().set_text(&result);
@@ -81,38 +82,61 @@ mod imp {
         #[template_callback]
         fn on_encrypt_click(&self, _button: &Button) {
             self.call_p(|window, text| {
-                match encrypt(&window.mask_text(text)) {
-                    Ok(res) => Some(res),
+                let mut result = String::new();
+                let text_r = if window.get_prettify_state() {
+                    str_to_bytes(text, 4)
+                } else {
+                    hex_to_bytes(text, 4)
+                };
+                let text = match text_r {
+                    Ok(text) => text,
                     Err(e) => {
                         window.show_message(&e.to_string());
-                        None
+                        return None;
                     }
+                };
+                for text_slice in text.windows(4).step_by(4) {
+                    result.push_str(&bytes_to_hex(&t(text_slice)));
                 }
+                Some(result)
             })
         }
 
         #[template_callback]
         fn on_decrypt_click(&self, _button: &Button) {
             self.call_p(|window, text| {
-                match decrypt(text) {
-                    Ok(res) => Some(window.demask_text(&res)),
+                let text = match hex_to_bytes(text, 4) {
+                    Ok(text) => text,
                     Err(e) => {
                         window.show_message(&e.to_string());
-                        None
+                        return None;
                     }
+                };
+                let mut buffer = Vec::new();
+                for text_slice in text.windows(4).step_by(4) {
+                    buffer.extend(t_reverse(text_slice).into_iter())
                 }
+                if window.get_prettify_state() {
+                    Some(match bytes_to_string(&buffer) {
+                        Ok(text) => text,
+                        Err(e) => {
+                            window.show_message(&e.to_string());
+                            return None;
+                        }
+                    })
+                } else { Some(bytes_to_hex(&buffer)) }
             })
         }
     }
 }
 
 glib::wrapper! {
-    pub struct GCiphersRsTrithemium(ObjectSubclass<imp::GCiphersRsTrithemium>)
+    pub struct GCiphersRsStable(ObjectSubclass<imp::GCiphersRsStable>)
         @extends gtk::Widget, adw::Bin,
         @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-impl GCiphersRsTrithemium {
+impl GCiphersRsStable {
     pub fn new() -> Self {
         glib::Object::builder().build()
     }

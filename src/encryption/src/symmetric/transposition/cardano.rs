@@ -106,21 +106,21 @@ pub fn decrypt(phrase: &str, grid: Vec<bool>, rows: usize, cols: usize, dirs: Ve
     Ok(table.extract(&dirs))
 }
 
-fn validate(phrase: &str, grid: &Vec<bool>, rows: usize, cols: usize, dirs: &Vec<bool>)
+fn validate(phrase: &str, grid: &[bool], rows: usize, cols: usize, dirs: &[bool])
     -> Result<(), Box<dyn Error>>
 {
     let alphabet = Alphabet::new();
-    if phrase.len() == 0 { Err(NullSizedValue::new("Фраза"))?; }
+    if phrase.is_empty() { Err(NullSizedValue::new("Фраза"))?; }
     if rows*cols < phrase.chars().count() {
         Err(InvalidSize::new("Фраза должна быть меньше размера решетки"))?;
     }
     if rows % 2 != 0 || cols % 2 != 0 {
         Err(InvalidSize::new("Размеры решетки должны быть кратны 2"))?;
     }
-    if grid.iter().filter(|x| **x == true).count() != rows * cols / 4 {
+    if grid.iter().filter(|x| **x).count() != rows * cols / 4 {
         Err(InvalidSize::new("Количество выколотых ячеек в решетке должно быть равно произведению размеров решетки деленому на 4"))?;
     }
-    if dirs.iter().count() != 3 {
+    if dirs.len() != 3 {
         Err(InvalidSize::new("Количество отражений должно быть равно 3"))?;
     }
     alphabet.validate(phrase)?;

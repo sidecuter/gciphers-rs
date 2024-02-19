@@ -32,34 +32,27 @@ fn get_rows_and_keys(
     key: &str
 ) -> Result<(Vec<usize>, usize), Box<dyn Error>> {
     let phrase_len = phrase.chars().count();
-    let keys = get_order(&alphabet, &key)?;
+    let keys = get_order(alphabet, key)?;
     let row_o = phrase_len / keys.len();
     let row = if phrase_len % keys.len() != 0 {row_o + 1} else {row_o};
     Ok((keys, row))
 }
 
-fn sort(order: &mut Vec<usize>, data: &mut Vec<Vec<isize>>) {
+fn sort(order: &mut [usize], data: &mut [Vec<isize>]) {
     let mut i: usize = 0;
-    loop {
-        match order.get(i) {
-            Some(index) => {
-                if *index - 1 == i {
-                    i += 1;
-                    continue;
-                }
-            },
-            None => break
+    while let Some(index) = order.get(i) {
+        if *index - 1 == i {
+            i += 1;
+            continue;
         }
-        let index = match order.get(i) {
-            Some(index) => *index - 1,
-            None => continue
-        };
+        let index = if let Some(index) = order.get(i) { *index - 1 }
+        else { continue };
         data.swap(i, index);
         order.swap(i, index);
     }
 }
 
-fn get_empty_slots(keys: &Vec<usize>, last_row: usize) -> Option<Vec<usize>> {
+fn get_empty_slots(keys: &[usize], last_row: usize) -> Option<Vec<usize>> {
     let mut result: Vec<usize> = Vec::new();
     for key in keys.iter().rev().take(last_row) {
         result.push(*key);
@@ -67,7 +60,7 @@ fn get_empty_slots(keys: &Vec<usize>, last_row: usize) -> Option<Vec<usize>> {
     if last_row > 0 { result.sort(); Some(result) } else { None }
 }
 
-fn get_result(alphabet: &Alphabet, buffer: &Vec<Vec<isize>>, row: usize, col: usize)
+fn get_result(alphabet: &Alphabet, buffer: &[Vec<isize>], row: usize, col: usize)
     -> Result<String, Box<dyn Error>>
 {
     let mut result = String::new();
@@ -101,11 +94,10 @@ pub fn encrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
     get_result(&alphabet, &buffer, row, keys.len())
 }
 
-fn prepare_keys(keys: &Vec<usize>) -> Result<Vec<usize>, Box<dyn Error>> {
-    let mut result: Vec<usize> = Vec::new();
-    for _ in 0..keys.len() { result.push(0); };
+fn prepare_keys(keys: &[usize]) -> Result<Vec<usize>, Box<dyn Error>> {
+    let mut result: Vec<usize> = vec![0; keys.len()];
     for (i, elem) in keys.iter().enumerate() {
-        match result.iter_mut().nth(*elem - 1) {
+        match result.get_mut(*elem - 1) {
             Some(elem) => *elem = i + 1,
             None => Err(InvalidKeyError::new("Ключ содержит невалидные значения"))?
         };
@@ -127,12 +119,7 @@ pub fn decrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
     for i in 0..row {
         for j in 0..keys.len() {
             let elem = match &empty_slots {
-                Some(slot) => {
-                    match slot.iter().nth(k) {
-                        Some(elem) => Some(*elem),
-                        None => None
-                    }
-                },
+                Some(slot) => slot.get(k).copied(),
                 None => None
             };
             let val = if i + 1 == row && elem.is_some() && elem.ok_or(InvalidIndex)? - 1 == j {

@@ -212,6 +212,4 @@ mod cardano_tests {
         ).unwrap();
         assert_eq!(result, "криптография");
     }
-
-
 }

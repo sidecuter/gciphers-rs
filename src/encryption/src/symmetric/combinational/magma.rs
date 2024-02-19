@@ -44,12 +44,12 @@ fn to_32(vec: &[u8]) -> u32 {
 }
 
 fn from_32(num: u32) -> Vec<u8> {
-    let mut result = Vec::new();
-    result.push(((num >> 24) & 0xff) as u8);
-    result.push(((num >> 16) & 0xff) as u8);
-    result.push(((num >> 8) & 0xff) as u8);
-    result.push((num & 0xff) as u8);
-    result
+    vec![
+        ((num >> 24) & 0xff) as u8,
+        ((num >> 16) & 0xff) as u8,
+        ((num >> 8) & 0xff) as u8,
+        (num & 0xff) as u8
+    ]
 }
 
 fn add_32(left: &[u8], right: &[u8]) -> Vec<u8> {
@@ -71,7 +71,7 @@ fn xor_32(left: &[u8], right: &[u8]) -> Vec<u8> {
     left.iter().zip(right.iter()).map(|(left, right)| *left ^ *right).collect()
 }
 
-pub fn expand_key(key: &[u8]) -> Vec<&[u8]> {
+fn expand_key(key: &[u8]) -> Vec<&[u8]> {
     let mut result: Vec<&[u8]> = (0..24).map(|i| {
         let i1 = modd(i*4, 32);
         let i2 = modd(i*4+4, 32);
@@ -85,16 +85,16 @@ pub fn expand_key(key: &[u8]) -> Vec<&[u8]> {
 }
 
 pub fn feistel_net_node(left: &[u8], right: &[u8], key: &[u8]) -> (Vec<u8>, Vec<u8>) {
-    (right.iter().map(|x| *x).collect(), xor_32(left, &g(right, key)))
+    (right.to_vec(), xor_32(left, &g(right, key)))
 }
 
-pub fn feistel_net_32(val: &[u8], keys: &Vec<&[u8]>) -> Vec<u8> {
-    let mut left: Vec<u8> = val[0..4].iter().map(|x| *x).collect();
-    let mut right: Vec<u8> = val[4..8].iter().map(|x| *x).collect();
+fn feistel_net_32(val: &[u8], keys: &[&[u8]]) -> Vec<u8> {
+    let mut left: Vec<u8> = val[0..4].to_vec();
+    let mut right: Vec<u8> = val[4..8].to_vec();
     let mut key = keys[0..32].iter();
     (right, left) = loop {
         (left, right) = match key.next() {
-            Some(key) => feistel_net_node(&left, &right, *key),
+            Some(key) => feistel_net_node(&left, &right, key),
             None => break (left, right)
         };
     };
@@ -103,11 +103,11 @@ pub fn feistel_net_32(val: &[u8], keys: &Vec<&[u8]>) -> Vec<u8> {
     result
 }
 
-fn proto(phrase: &str, keys: &Vec<&[u8]>) ->Result<String, Box<dyn Error>> {
+fn proto(phrase: &str, keys: &[&[u8]]) ->Result<String, Box<dyn Error>> {
     let phrase = hex_to_bytes(phrase, 8)?;
     let mut result = String::new();
     for fragment in phrase.windows(8).step_by(8) {
-        let fragment = feistel_net_32(fragment, &keys);
+        let fragment = feistel_net_32(fragment, keys);
         result.push_str(&bytes_to_hex(&fragment));
     }
     Ok(result)
@@ -128,6 +128,47 @@ pub fn decrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
 
 pub fn prepair_phrase(phrase: &str) -> Result<String, Box<dyn Error>>{
     Ok(bytes_to_hex(&str_to_bytes(phrase, 8)?))
+}
+
+fn add_xor(left: &[u8], right: &[u8]) -> Vec<u8> {
+    left.iter().zip(right.iter()).map(|(left, right)| *left ^ *right).collect()
+}
+
+fn inc_ctr(counter: &[u8]) -> Vec<u8> {
+    let mut buffer: usize = 0;
+    let bits: Vec<u8> = vec![0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01];
+    counter.iter().rev().zip(bits.iter().rev()).map(|(elem, bit)| {
+        buffer = *elem as usize + *bit as usize + (buffer >> 8);
+        (buffer & 0xff) as u8
+    }).collect()
+}
+
+fn null_len(vec: &[u8]) -> usize {
+    let mut count = 0_usize;
+    for elem in vec.iter().rev() {
+        if *elem == 0 { count += 1; }
+        else { break; }
+    }
+    count
+}
+
+
+pub fn ctr_magma(phrase: &str, init_v: &str, key: &str) -> Result<String, Box<dyn Error>> {
+    let init_v = hex_to_bytes(init_v, 4)?;
+    let mut ctr: Vec<u8> = init_v.to_vec();
+    ctr.extend(vec![0x00u8; 4]);
+    let key = hex_to_bytes(key, 32)?;
+    let keys = expand_key(&key);
+    let mut gamma: Vec<u8>;
+    let phrase = hex_to_bytes(phrase, 8)?;
+    let null_count = null_len(&phrase);
+    let mut result_v: Vec<u8> = Vec::new();
+    for part in phrase.windows(8).step_by(8) {
+        gamma = feistel_net_32(&ctr, &keys);
+        ctr = inc_ctr(&ctr);
+        result_v.extend(add_xor(part, &gamma));
+    }
+    Ok(bytes_to_hex(&result_v[0..result_v.len() - null_count]))
 }
 
 #[cfg(test)]

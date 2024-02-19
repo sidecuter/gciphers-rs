@@ -49,6 +49,12 @@ impl Alphabet {
     }
 }
 
+impl Default for Alphabet {
+    fn default() -> Self {
+        Alphabet::new()
+    }
+}
+
 impl From<String> for Alphabet {
     fn from(value: String) -> Self {
         Alphabet {

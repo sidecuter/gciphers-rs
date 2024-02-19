@@ -32,25 +32,25 @@ pub fn hex_to_bytes(text: &str, border: usize) -> Result<Vec<u8>, Box<dyn Error>
     let null_count = bytes_vec.len() % border;
     if null_count > 0 {
         let null = vec![0_u8; border - null_count];
-        bytes_vec.extend(null.into_iter());
+        bytes_vec.extend(null);
     }
     Ok(bytes_vec)
 }
 
 pub fn validate_single(alphabet: &Alphabet, phrase: &str) -> Result<(), Box<dyn Error>> {
-    if phrase.len() == 0 { Err(NullSizedValue::new("Фраза"))?; }
+    if phrase.is_empty() { Err(NullSizedValue::new("Фраза"))?; }
     alphabet.validate(phrase)
 }
 
 pub fn validate_two(alphabet: &Alphabet, text: &str, key: &str) -> Result<(), Box<dyn Error>> {
-    if text.len() == 0 { Err(NullSizedValue::new("Фраза"))?; }
-    if key.len() == 0 { Err(NullSizedValue::new("Ключ"))?; }
+    if text.is_empty() { Err(NullSizedValue::new("Фраза"))?; }
+    if key.is_empty() { Err(NullSizedValue::new("Ключ"))?; }
     alphabet.validate(text)?;
     alphabet.validate(key)
 }
 
 pub fn transform(val: &str, message: &str) -> Result<isize, Box<dyn Error>> {
-    if val.len() == 0 { Err(NullSizedValue::new(message))?;}
+    if val.is_empty() { Err(NullSizedValue::new(message))?;}
    Ok(val.parse::<isize>()?)
 }
 

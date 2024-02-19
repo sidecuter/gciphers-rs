@@ -17,7 +17,7 @@ impl Generator {
 
     fn step(&mut self) -> usize {
         self.state = (self.a * self.state + self.c) % self.modd;
-        return self.state
+        self.state
     }
 }
 
@@ -27,9 +27,9 @@ fn validate(alphabet: &Alphabet, phrase: &str, t0: &str, a: &str, c: &str)
     let t0: usize = t0.parse()?;
     let a: usize = a.parse()?;
     let c: usize = c.parse()?;
-    if 0 >= t0 || alphabet.len() < t0 { Err(InvalidSize::new("T0 должен быть в пределах от 1 до 32"))?; }
-    if 0 >= a || a % 4 != 1 { Err(InvalidSize::new("a должно быть отлично от 0 и остаток от деления на 4 равен 1"))?; }
-    if 0 >= c || c % 2 == 0 { Err(InvalidSize::new("c должно быть отлично от 0 и нечетным"))?; }
+    if 0 == t0 || alphabet.len() < t0 { Err(InvalidSize::new("T0 должен быть в пределах от 1 до 32"))?; }
+    if 0 == a || a % 4 != 1 { Err(InvalidSize::new("a должно быть отлично от 0 и остаток от деления на 4 равен 1"))?; }
+    if 0 == c || c % 2 == 0 { Err(InvalidSize::new("c должно быть отлично от 0 и нечетным"))?; }
     validate_single(alphabet, phrase)?;
     Ok((t0, a, c))
 }

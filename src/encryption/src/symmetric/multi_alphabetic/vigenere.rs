@@ -27,8 +27,8 @@ pub fn decrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
 }
 
 fn validate(alphabet: &Alphabet, phrase: &str, key: &str) -> Result<(), Box<dyn Error>> {
-    if phrase.len() == 0 { return Err(Box::new(NullSizedValue::new("Фраза"))); }
-    if key.len() == 0 { return Err(Box::new(NullSizedValue::new("Ключ"))); }
+    if phrase.is_empty() { return Err(Box::new(NullSizedValue::new("Фраза"))); }
+    if key.is_empty() { return Err(Box::new(NullSizedValue::new("Ключ"))); }
     if key.chars().count() > 1 { return Err(Box::new(InvalidSize::new("Ключ должен быть одной буквой"))); }
     alphabet.validate(phrase)?;
     alphabet.validate(key)

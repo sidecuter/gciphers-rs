@@ -17,7 +17,7 @@ impl PlayfairTable {
         for letter in alphabet.chars() {
             if !data.contains(&letter) { data.push(letter); }
         }
-        return PlayfairTable { cols: 6, data }
+        PlayfairTable { cols: 6, data }
     }
 
     fn find_letter(&self, letter: char) -> (usize, usize) {
@@ -61,7 +61,7 @@ fn validate_key(key: &str) -> Result<(), Box<dyn Error>> {
 
 fn prepare_phrase(phrase: &str) -> String {
     let mut result = String::new();
-    let mut prev_letter = phrase.chars().nth(0).unwrap();
+    let mut prev_letter = phrase.chars().next().unwrap();
     let mut i = 1;
     result.push(prev_letter);
     for letter in phrase.chars().skip(1) {
@@ -108,8 +108,8 @@ pub fn decrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
 fn validate(phrase: &str, key: &str) -> Result<(), Box<dyn Error>> {
     let polybius_alp = Alphabet::from("абвгдежзиклмнопрстуфхцчшщъыэюя".to_string());
     let alphabet = Alphabet::new();
-    if phrase.len() == 0 { Err(NullSizedValue::new("Фраза"))?; }
-    if key.len() == 0 { Err(NullSizedValue::new("Ключ"))?; }
+    if phrase.is_empty() { Err(NullSizedValue::new("Фраза"))?; }
+    if key.is_empty() { Err(NullSizedValue::new("Ключ"))?; }
     alphabet.validate(phrase)?;
     polybius_alp.validate(key)?;
     validate_key(key)

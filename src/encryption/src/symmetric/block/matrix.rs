@@ -18,26 +18,26 @@ impl Matrix<f32> {
             Err(InvalidSize::new("Матрица пуста"))?;
         }
         if self.rows == 1 {
-            return Ok(*self.data.get(0).unwrap());
+            return Ok(*self.data.first().unwrap());
         }
         let mut result: f32 = 1.;
-        if *self.data.get(0).unwrap() == 0. {
-            if let Err(_) = self.swap_zero() {
+        if *self.data.first().unwrap() == 0. {
+            if self.swap_zero().is_err() {
                 return Ok(0.);
             } else { result *= -1.; }
         }
-        let first_row: Vec<f32> = self.data[0..self.cols].iter().map(|x| *x).collect();
+        let first_row: Vec<f32> = self.data[0..self.cols].to_vec();
         for i in 1..self.rows {
             if *self.data.get(i * self.cols).unwrap() != 0. {
                 let mnoj: f32 = *self.data.get(i * self.cols).unwrap()
-                    / *self.data.get(0).unwrap();
+                    / *self.data.first().unwrap();
                 let mut iter = first_row.iter();
                 for elem in self.data[i * self.cols..(i + 1) * self.cols].iter_mut() {
                     *elem -= *iter.next().unwrap() * mnoj;
                 }
             }
         }
-        result *= *self.data.get(0).unwrap() * self.get_minor(0, 0)?.det()?;
+        result *= *self.data.first().unwrap() * self.get_minor(0, 0)?.det()?;
         Ok(result)
     }
 
@@ -92,7 +92,7 @@ impl Matrix<isize> {
                 for k in 0..self.cols {
                     let lhs = *self.data.get(i * self.cols + k).unwrap();
                     let rhs1 = *rhs.data.get(k * rhs.cols + j).unwrap();
-                    sum = sum + lhs * rhs1;
+                    sum += lhs * rhs1;
                 }
                 data.push(sum);
             }
@@ -137,11 +137,11 @@ impl Matrix<isize> {
             }
             if self.rows % 2 == 0 { multiplicator *= -1; }
         }
-        Ok(Matrix {
+        Matrix {
             rows: self.rows,
             cols: self.cols,
             data
-        }.transp()?)
+        }.transp()
     }
 
     fn transp(&self) -> Result<Matrix<isize>, Box<dyn Error>> {
@@ -172,7 +172,7 @@ impl<T> TryFrom<Vec<Vec<T>>> for Matrix<T> where
     fn try_from(value: Vec<Vec<T>>) -> Result<Self, Self::Error> {
         let rows = value.len();
         if rows == 0 { return Err(InvalidSize::new("Матрица не может быть нулевой")); }
-        let cols = value.iter().next().unwrap().len();
+        let cols = value.first().unwrap().len();
         if cols == 0 { return Err(InvalidSize::new("Матрица не может быть нулевой")); }
         let mut data = Vec::new();
         for row in value {
@@ -237,7 +237,7 @@ fn split_string(phrase: &str, border: usize) -> Result<Vec<Matrix<isize>>, Box<d
     let length = phrase.chars().count();
     let letters: Vec<char> = phrase.chars().collect();
     for i in (0..length).step_by(border) {
-        let buffer: Vec<isize> = (&letters[i..i+border]).iter().map(
+        let buffer: Vec<isize> = letters[i..i+border].iter().map(
             |letter| alphabet.index_of(*letter) as isize + 1).collect();
         result.push(Matrix::try_from(&buffer)?);
     }
@@ -324,7 +324,7 @@ pub fn decrypt(phrase: &str, matrix: Vec<Vec<isize>>) -> Result<String, Box<dyn 
 }
 
 fn validate_decrypt(phrase: &str) -> Result<(), Box<dyn Error>> {
-    if phrase.len() == 0 { return Err(Box::new(NullSizedValue::new("Фраза"))); }
+    if phrase.is_empty() { return Err(Box::new(NullSizedValue::new("Фраза"))); }
     let alphabet = Alphabet::from("0123456789".to_string());
     alphabet.validate(phrase)
 }

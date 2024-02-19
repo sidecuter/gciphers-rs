@@ -59,9 +59,9 @@ pub fn decrypt(phrase: &str, rows: &str, cols: &str) -> Result<String, Box<dyn E
 fn validate(
     phrase: &str, rows: &str, columns: &str
 ) -> Result<Table, Box<dyn Error>> {
-    if phrase.len() == 0 { return Err(Box::new(NullSizedValue::new("Фраза"))); }
-    if rows.len() == 0 { return Err(Box::new(NullSizedValue::new("Количество рядов"))); }
-    if columns.len() == 0 { return Err(Box::new(NullSizedValue::new("Количество столбцов"))); }
+    if phrase.is_empty() { return Err(Box::new(NullSizedValue::new("Фраза"))); }
+    if rows.is_empty() { return Err(Box::new(NullSizedValue::new("Количество рядов"))); }
+    if columns.is_empty() { return Err(Box::new(NullSizedValue::new("Количество столбцов"))); }
     let table = Table::build(rows.parse()?, columns.parse()?)?;
     table.alphabet.validate(phrase)?;
     Ok(table)
@@ -70,20 +70,20 @@ fn validate(
 fn validate_dec(
     phrase: &str, rows: &str, columns: &str
 ) -> Result<Table, Box<dyn Error>> {
-    if phrase.len() == 0 { return Err(Box::new(NullSizedValue::new("Фраза"))); }
+    if phrase.is_empty() { return Err(Box::new(NullSizedValue::new("Фраза"))); }
     if phrase.chars().count() % 2 != 0 {return Err(Box::new(InvalidSize::new(
         "Количество цифр должно быть кратным 2"
     )));}
-    if rows.len() == 0 { return Err(Box::new(NullSizedValue::new("Количество рядов"))); }
-    if columns.len() == 0 { return Err(Box::new(NullSizedValue::new("Количество столбцов"))); }
+    if rows.is_empty() { return Err(Box::new(NullSizedValue::new("Количество рядов"))); }
+    if columns.is_empty() { return Err(Box::new(NullSizedValue::new("Количество столбцов"))); }
     let table = Table::build(rows.parse()?, columns.parse()?)?;
     for (row, col) in phrase.chars().tuples() {
         let row = row.to_digit(10).ok_or(InvalidIndex)? as usize;
         let col = col.to_digit(10).ok_or(InvalidIndex)? as usize;
-        if row > table.last_row || row <= 0{
+        if row > table.last_row || row == 0{
             return Err(Box::new(OutOfBounds::new("ряд")));
         }
-        if col > table.columns || col <= 0 {
+        if col > table.columns || col == 0 {
             return Err(Box::new(OutOfBounds::new("столбец")));
         }
         if col > table.last_column && row == table.last_row {

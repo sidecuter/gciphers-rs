@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="GCiphersRsShenon" parent="AdwBin">
+        <property name="name">Shenon</property>
+        <property name="margin-bottom">20</property>
+        <property name="margin-end">20</property>
+        <property name="margin-start">20</property>
+        <property name="margin-top">20</property>
+        <child>
+            <object class="GtkScrolledWindow">
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <child>
+                                    <object class="UIEntry" id="t0">
+                                        <property name="placeholder_text">Введите t0</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="a">
+                                        <property name="margin-end">10</property>
+                                        <property name="placeholder_text">Введите a</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="c">
+                                        <property name="placeholder_text">Введите c</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="label">Введите текст</property>
+                                <property name="margin-top">10</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="UITextView" id="text_view"/>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="hexpand">True</property>
+                                <property name="margin-top">10</property>
+                                <property name="valign">start</property>
+                                <child>
+                                    <object class="GtkButton">
+                                        <signal name="clicked" handler="on_encrypt_click" swapped="true"/>
+                                        <property name="label">Зашифровать</property>
+                                        <property name="valign">center</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkBox">
+                                        <property name="hexpand">True</property>
+                                        <property name="valign">center</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton">
+                                        <signal name="clicked" handler="on_decrypt_click" swapped="true"/>
+                                        <property name="label">Расшифровать</property>
+                                        <property name="valign">center</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

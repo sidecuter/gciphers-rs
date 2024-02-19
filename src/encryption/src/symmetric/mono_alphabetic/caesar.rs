@@ -20,7 +20,7 @@ pub fn decrypt(phrase: &str, shift: isize) -> Result<String, Box<dyn Error>> {
 }
 
 fn validate(alphabet: &Alphabet, text: &str, shift: isize) -> Result<(), Box<dyn Error>> {
-    if text.len() == 0 { return Err(Box::new(NullSizedValue::new("Фраза"))); }
+    if text.is_empty() { return Err(Box::new(NullSizedValue::new("Фраза"))); }
     if shift >= alphabet.len() as isize || shift < 1 {
         return Err(Box::new(InvalidKeyError::new("Сдвиг не принадлежит заданному диапазону от 1 до 32")));
     }

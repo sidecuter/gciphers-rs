@@ -137,10 +137,11 @@ fn add_xor(left: &[u8], right: &[u8]) -> Vec<u8> {
 fn inc_ctr(counter: &[u8]) -> Vec<u8> {
     let mut buffer: usize = 0;
     let bits: Vec<u8> = vec![0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01];
-    counter.iter().rev().zip(bits.iter().rev()).map(|(elem, bit)| {
+    let result: Vec<u8> = counter.iter().rev().zip(bits.iter().rev()).map(|(elem, bit)| {
         buffer = *elem as usize + *bit as usize + (buffer >> 8);
         (buffer & 0xff) as u8
-    }).collect()
+    }).collect();
+    result.iter().rev().copied().collect()
 }
 
 fn null_len(vec: &[u8]) -> usize {
@@ -314,5 +315,25 @@ mod magma_tests {
         let key = "ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff";
         let phrase = "4ee901e5c2d8ca3d";
         assert_eq!(decrypt(phrase, key).unwrap(), "fedcba9876543210");
+    }
+
+    #[test]
+    fn test_ctr_encryption() {
+        let key = String::from("ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff");
+        let iv = String::from("12345678");
+        let phrase = String::from("92def06b3c130a59db54c704f8189d204a98fb2e67a8024c8912409b17b57e41");
+        let valid = String::from("4e98110c97b7b93c3e250d93d6e85d69136d868807b2dbef568eb680ab52a12d");
+        let result = ctr_magma(&phrase, &iv, &key).unwrap();
+        assert_eq!(result, valid);
+    }
+
+    #[test]
+    fn test_ctr_decryption() {
+        let key = String::from("ffeeddccbbaa99887766554433221100f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff");
+        let iv = String::from("12345678");
+        let valid = String::from("92def06b3c130a59db54c704f8189d204a98fb2e67a8024c8912409b17b57e41");
+        let phrase = String::from("4e98110c97b7b93c3e250d93d6e85d69136d868807b2dbef568eb680ab52a12d");
+        let result = ctr_magma(&phrase, &iv, &key).unwrap();
+        assert_eq!(result, valid);
     }
 }

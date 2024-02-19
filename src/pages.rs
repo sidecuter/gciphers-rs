@@ -11,3 +11,4 @@ pub mod cardano;
 pub mod vetrical;
 pub mod feistel;
 pub mod shenon;
+pub mod ctr_magma;

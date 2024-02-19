@@ -29,6 +29,7 @@ use crate::pages::polybius::GCiphersRsPolybius;
 use crate::pages::trithemium::GCiphersRsTrithemium;
 use crate::pages::belazo::GCiphersRsBelazo;
 use crate::pages::cardano::GCiphersRsCardano;
+use crate::pages::ctr_magma::GCiphersRsCtrMagma;
 use crate::pages::feistel::GCiphersRsFeistel;
 use crate::pages::matrix::GCiphersRsMatrix;
 use crate::pages::playfair::GCiphersRsPlayfair;
@@ -106,7 +107,7 @@ mod imp {
                     .expect("Index error")
                     .downcast_ref::<Bin>()
                     .expect("Must be Adw.Bin").clone();
-                self.stack.set_visible_child_name(&page.widget_name().to_string());
+                self.stack.set_visible_child_name(&page.widget_name());
             }
         }
 
@@ -151,6 +152,7 @@ impl GCiphersRsWindow {
         pages.append(&GCiphersRsCardano::new());
         pages.append(&GCiphersRsFeistel::new());
         pages.append(&GCiphersRsShenon::new());
+        pages.append(&GCiphersRsCtrMagma::new());
         self.imp().pages.replace(Some(pages));
     }
 
@@ -169,6 +171,7 @@ impl GCiphersRsWindow {
             String::from("Кардано"),
             String::from("Сеть Фейстеля"),
             String::from("Шеннон"),
+            String::from("CTR Магма"),
         ];
         self.imp().labels.replace(Some(labels));
         self.setup_rows();
@@ -189,7 +192,7 @@ impl GCiphersRsWindow {
                 .expect("Needs to be an Adw.Bin")
                 .clone();
             let _name = page.widget_name().to_string();
-            self.imp().stack.add_named(&page, Some(&page.widget_name().to_string()));
+            self.imp().stack.add_named(&page, Some(&page.widget_name()));
         }
     }
 
@@ -199,13 +202,13 @@ impl GCiphersRsWindow {
 
     pub fn mask_text(&self, text: &str) -> String {
         let mut result = String::from(text);
-        result = result.replace(".", "тчк")
-            .replace(",", "зпт")
-            .replace("-", "тире");
+        result = result.replace('.', "тчк")
+            .replace(',', "зпт")
+            .replace('-', "тире");
         if !self.get_prettify_state() {
-            result.replace(" ", "")
+            result.replace(' ', "")
         } else {
-            result.replace(" ", "прб")
+            result.replace(' ', "прб")
         }
     }
 

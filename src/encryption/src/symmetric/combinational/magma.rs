@@ -1,5 +1,5 @@
 use std::error::Error;
-use crate::methods::{bytes_to_hex, hex_to_bytes, modd, str_to_bytes};
+use crate::methods::{bytes_to_hex, hex_to_bytes, modd};
 
 const S_TABLE: [[u8; 16]; 8] = [
     [1,7,14,13,0,5,8,3,4,15,10,6,9,12,11,2],
@@ -59,7 +59,7 @@ fn add_32(left: &[u8], right: &[u8]) -> Vec<u8> {
     from_32(result_32)
 }
 
-pub fn g(key: &[u8], a: &[u8]) -> Vec<u8> {
+fn g(key: &[u8], a: &[u8]) -> Vec<u8> {
     let internal = add_32(a, key);
     let internal = t(&internal);
     let mut result_32 = to_32(&internal);
@@ -71,7 +71,7 @@ fn xor_32(left: &[u8], right: &[u8]) -> Vec<u8> {
     left.iter().zip(right.iter()).map(|(left, right)| *left ^ *right).collect()
 }
 
-pub fn expand_key(key: &[u8]) -> Vec<&[u8]> {
+fn expand_key(key: &[u8]) -> Vec<&[u8]> {
     let mut result: Vec<&[u8]> = (0..24).map(|i| {
         let i1 = modd(i*4, 32);
         let i2 = modd(i*4+4, 32);
@@ -84,11 +84,11 @@ pub fn expand_key(key: &[u8]) -> Vec<&[u8]> {
     result
 }
 
-pub fn feistel_net_node(left: &[u8], right: &[u8], key: &[u8]) -> (Vec<u8>, Vec<u8>) {
+fn feistel_net_node(left: &[u8], right: &[u8], key: &[u8]) -> (Vec<u8>, Vec<u8>) {
     (right.to_vec(), xor_32(left, &g(right, key)))
 }
 
-pub fn feistel_net_32(val: &[u8], keys: &[&[u8]]) -> Vec<u8> {
+fn feistel_net_32(val: &[u8], keys: &[&[u8]]) -> Vec<u8> {
     let mut left: Vec<u8> = val[0..4].to_vec();
     let mut right: Vec<u8> = val[4..8].to_vec();
     let mut key = keys[0..32].iter();
@@ -125,10 +125,6 @@ pub fn decrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
     let mut expanded_keys = expand_key(&key);
     expanded_keys.reverse();
     proto(phrase, &expanded_keys)
-}
-
-pub fn prepair_phrase(phrase: &str) -> Result<String, Box<dyn Error>>{
-    Ok(bytes_to_hex(&str_to_bytes(phrase, 8)?))
 }
 
 fn add_xor(left: &[u8], right: &[u8]) -> Vec<u8> {

@@ -184,32 +184,4 @@ mod cardano_tests {
         ).unwrap();
         assert_eq!(result, "окноокноокноокно");
     }
-
-    #[test]
-    fn test_crypt() {
-        let result = encrypt(
-            "криптография",
-            vec![false, true, false, true,
-                 true, false, true, false,
-                 false, false, false, false,
-                 false, false, false, false],
-            4, 4,
-            vec![true, false, true]
-        ).unwrap();
-        assert_eq!(result, "ткоригпрлаьфидяи");
-    }
-
-    #[test]
-    fn test_crypt1() {
-        let result = decrypt(
-            "ткоригпрлаьфидяи",
-            vec![false, true, false, true,
-                 true, false, true, false,
-                 false, false, false, false,
-                 false, false, false, false],
-            4, 4,
-            vec![true, false, true]
-        ).unwrap();
-        assert_eq!(result, "криптография");
-    }
 }

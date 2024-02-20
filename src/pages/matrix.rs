@@ -24,7 +24,6 @@ use gtk::prelude::*;
 
 mod imp {
     use std::cell::Cell;
-    use adw::Bin;
     use adw::prelude::BinExt;
     use gtk::{Button, template_callbacks};
     use gtk::prelude::WidgetExt;
@@ -44,7 +43,7 @@ mod imp {
         #[template_child]
         pub text_view: TemplateChild<UITextView>,
         #[template_child]
-        pub placeholder: TemplateChild<Bin>,
+        pub placeholder: TemplateChild<adw::Bin>,
         #[template_child]
         pub n: TemplateChild<UIEntry>,
         pub initialized_matrixes: Cell<bool>
@@ -124,7 +123,7 @@ mod imp {
                     return;
                 }
             };
-            if 2 > n || n > 10 {
+            if !(2..=10).contains(&n) {
                 window.show_message("N не может быть меньше 2 и больше 10");
                 return;
             }

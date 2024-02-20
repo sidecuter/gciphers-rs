@@ -13,6 +13,14 @@ pub fn modd(num: isize, limit: usize) -> usize {
     }
 }
 
+pub fn hex_to_str(text: &str) -> Result<String, Box<dyn Error>> {
+    bytes_to_string(&hex_to_bytes(text, 1)?)
+}
+
+pub fn str_to_hex(text: &str, border: usize) -> String {
+    bytes_to_hex(&str_to_bytes(text, border).unwrap())
+}
+
 pub fn str_to_bytes(text: &str, border: usize) -> Result<Vec<u8>, Box<dyn Error>> {
     let bytes = hex_to_bytes(&encode(text), border)?;
     Ok(bytes)

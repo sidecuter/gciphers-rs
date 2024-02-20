@@ -23,6 +23,7 @@ use gtk::glib;
 use gtk::prelude::*;
 
 mod imp {
+    use std::error::Error;
     use gtk::{Button, template_callbacks};
     use gtk::prelude::WidgetExt;
     use crate::ui::entry::UIEntry;
@@ -30,8 +31,8 @@ mod imp {
     use crate::ui::text_view::UITextView;
     use crate::window::GCiphersRsWindow;
 
-    use encryption::magma::{feistel_net_node, g};
-    use encryption::methods::{bytes_to_hex, bytes_to_string, hex_to_bytes, str_to_bytes};
+    use encryption::magma::{encrypt, decrypt};
+    use encryption::methods::{hex_to_str, str_to_hex};
 
     use super::*;
 
@@ -83,22 +84,12 @@ mod imp {
             }
         }
 
-        fn get_bytes(&self, window: &GCiphersRsWindow, text: &str) -> Option<Vec<u8>> {
-            match hex_to_bytes(text, 4) {
-                Ok(key) => Some(key),
+        fn get_string(&self, res: Result<String, Box<dyn Error>>, window: &GCiphersRsWindow) -> Option<String> {
+            match res {
+                Ok(result) => Some(result),
                 Err(e) => {
                     window.show_message(&e.to_string());
-                    return None;
-                }
-            }
-        }
-
-        fn get_bytes_str(&self, window: &GCiphersRsWindow, text: &str) -> Option<Vec<u8>> {
-            match str_to_bytes(text, 4) {
-                Ok(key) => Some(key),
-                Err(e) => {
-                    window.show_message(&e.to_string());
-                    return None;
+                    None
                 }
             }
         }
@@ -106,23 +97,15 @@ mod imp {
         #[template_callback]
         fn on_encrypt_click(&self, _button: &Button) {
             self.call_p(|window, text, key| {
-                if key.chars().count() != 8 {
-                    window.show_message("Ключ должен состоять из 4 байт");
+                if key.chars().count() != 64 {
+                    window.show_message("Ключ должен состоять из 32 байт");
                     return None;
                 }
-                let key = self.get_bytes(window, key)?;
-                let mut result = String::new();
-                if window.get_prettify_state() {
-                    let right: Vec<u8> = vec![ 0xfd, 0xcb, 0xc2, 0x0c ];
-                    let left = self.get_bytes_str(window, text)?;
-                    for sector in left.windows(4).step_by(4) {
-                        let (_, right_result) = feistel_net_node(sector, &right, &key);
-                        result.push_str(&bytes_to_hex(&right_result));
-                    }
+                let result = if window.get_prettify_state() {
+                    self.get_string(encrypt(&str_to_hex(text, 8), key), window)?
                 } else {
-                    let left = self.get_bytes(window, text)?;
-                    result.push_str(&bytes_to_hex(&g(&left, &key)));
-                }
+                    self.get_string(encrypt(text, key), window)?
+                };
                 Some(result)
             })
         }
@@ -130,36 +113,23 @@ mod imp {
         #[template_callback]
         fn on_decrypt_click(&self, _button: &Button) {
             self.call_p(|window, text, key| {
-                if key.chars().count() != 8 {
-                    window.show_message("Ключ должен состоять из 4 байт");
+                if key.chars().count() != 64 {
+                    window.show_message("Ключ должен состоять из 32 байт");
                     return None;
                 }
-                let key = self.get_bytes(window, key)?;
-                let mut result: Vec<u8> = Vec::new();
-                if window.get_prettify_state() {
-                    let right: Vec<u8> = vec![ 0xfd, 0xcb, 0xc2, 0x0c ];
-                    let left = self.get_bytes(window, text)?;
-                    for sector in left.windows(4).step_by(4) {
-                        let (_, right_result) = feistel_net_node(sector, &right, &key);
-                        result.extend(right_result);
-                    }
+                let result = if window.get_prettify_state() {
+                    let result = match decrypt(text, key) {
+                        Ok(result) => result,
+                        Err(e) => {
+                            window.show_message(&e.to_string());
+                            return None;
+                        }
+                    };
+                    self.get_string(hex_to_str(&result), window)?
                 } else {
-                    return None;
-                }
-                Some(match bytes_to_string(&result) {
-                    Ok(str) => str,
-                    Err(e) => {
-                        window.show_message(&e.to_string());
-                        return None;
-                    }
-                })
-                /*match decrypt(text, key) {
-                    Ok(res) => Some(window.demask_text(&res)),
-                    Err(e) => {
-                        window.show_message(&e.to_string());
-                        None
-                    }
-                }*/
+                    self.get_string(decrypt(text, key), window)?
+                };
+                Some(result)
             })
         }
     }

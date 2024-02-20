@@ -117,8 +117,7 @@ fn r(data: &[u8]) -> Vec<u8> {
 fn r_reverse(data: &[u8]) -> Vec<u8> {
     let mut result = data[1..].to_vec();
     let mut a_0 = 0;
-    let mut copy: Vec<u8> = data.to_vec();
-    copy.remove(0);
+    let mut copy: Vec<u8> = data[1..].to_vec();
     copy.push(*data.first().unwrap());
     for (elem, coef) in copy.iter().zip(L_VEC.iter()) {
         a_0 ^= gf_mul(*elem, *coef);

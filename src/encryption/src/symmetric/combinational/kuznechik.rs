@@ -40,8 +40,8 @@ const S_REVERSE: [u8; 256] = [
 ];
 
 const L_VEC: [u8; 16] = [
-    1, 148, 32, 133, 16, 194, 192, 1,
-    251, 1, 192, 194, 16, 133, 32, 148
+    148, 32, 133, 16, 194, 192, 1, 251,
+    1, 192, 194, 16, 133, 32, 148, 1
 ];
 
 const C: [[u8; 16]; 32] = [
@@ -107,7 +107,7 @@ fn gf_mul(mut left: u8, mut right: u8) -> u8 {
 fn r(data: &[u8]) -> Vec<u8> {
     let mut result = data[..data.len() - 1].to_vec();
     let mut a_15 = 0_u8;
-    for (elem, coef) in data.iter().rev().zip(L_VEC.iter()) {
+    for (elem, coef) in data.iter().zip(L_VEC.iter()) {
         a_15 ^= gf_mul(*elem, *coef);
     }
     result.insert(0, a_15);
@@ -120,7 +120,7 @@ fn r_reverse(data: &[u8]) -> Vec<u8> {
     let mut copy: Vec<u8> = data.to_vec();
     copy.remove(0);
     copy.push(*data.first().unwrap());
-    for (elem, coef) in copy.iter().rev().zip(L_VEC.iter()) {
+    for (elem, coef) in copy.iter().zip(L_VEC.iter()) {
         a_0 ^= gf_mul(*elem, *coef);
     }
     result.push(a_0);

@@ -118,18 +118,12 @@ pub fn decrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
     let mut k: usize = 0;
     for i in 0..row {
         for j in 0..keys.len() {
-            let elem = match &empty_slots {
-                Some(slot) => slot.get(k).copied(),
-                None => None
-            };
+            let elem = empty_slots.as_ref().and_then(|x| x.get(k).copied());
             let val = if i + 1 == row && elem.is_some() && elem.ok_or(InvalidIndex)? - 1 == j {
                 k += 1;
                 -1
             } else {
-                match letter.next() {
-                    Some(letter) => alphabet.index_of(letter) as isize,
-                    None => -1
-                }
+                letter.next().map_or(-1, |letter| alphabet.index_of(letter) as isize)
             };
             buffer.get_mut(j).ok_or(InvalidIndex)?.push(val);
         }
@@ -237,5 +231,13 @@ mod vetrical_tests {
         let key = String::from("супчик");
         let result = decrypt(&phrase, &key).unwrap();
         assert_eq!(result, "отодногопорченогояблокавесьвоззагниваеттчк");
+    }
+
+    #[test]
+    fn test_vertical_all_posibilities() {
+        let phrase = String::from("нооотдрчпгооояоенгобл");
+        let key = String::from("супчик");
+        let result = decrypt(&phrase, &key).unwrap();
+        assert_eq!(result, "отодногопорченогоябло");
     }
 }

@@ -191,7 +191,6 @@ impl GCiphersRsWindow {
                 .downcast_ref::<Bin>()
                 .expect("Needs to be an Adw.Bin")
                 .clone();
-            let _name = page.widget_name().to_string();
             self.imp().stack.add_named(&page, Some(&page.widget_name()));
         }
     }

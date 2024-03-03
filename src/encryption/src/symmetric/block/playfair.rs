@@ -144,7 +144,7 @@ mod playfair_tests {
 
     #[test]
     fn test_validate() {
-        assert_eq!(validate("аф", "ре").unwrap(), ());
+        validate("аф", "ре").unwrap();
     }
 
     #[test]

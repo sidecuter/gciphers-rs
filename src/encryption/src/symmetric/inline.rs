@@ -3,6 +3,15 @@ use std::ops::{BitAnd, ShrAssign};
 pub mod a5_1;
 pub mod a5_2;
 
+fn to_64(vec: &[u8]) -> u64 {
+    let mut shift: i64 = 56;
+    vec.iter().map(|num| {
+        let result = (*num as u64) << shift;
+        shift -= 8;
+        result
+    }).sum()
+}
+
 #[derive(Clone)]
 struct RegIter<T>
     where T: num::Integer + Copy + Clone + Eq + BitAnd<Output=T> + ShrAssign + num::FromPrimitive
@@ -46,6 +55,32 @@ struct Register {
 
 trait System {
     fn magority(&self) -> u8;
+    
+    fn prepare(&mut self);
+
+    fn takt(&mut self) -> u128;
+
+    fn process(&mut self, phrase_len_bits: usize) -> Vec<RegIter<u128>> {
+        let mut res = Vec::new();
+        let ost = phrase_len_bits % 114;
+        let count = if ost != 0 {
+            phrase_len_bits / 114 + 1
+        } else { phrase_len_bits / 114 };
+        let ost = if ost == 0 { 114 } else { ost };
+        for i in 0..count {
+            let left = self.takt();
+            if i == count - 1 {
+                res.push(
+                    RegIter::new(ost as u8, left, 0x20000000000000000000000000000)
+                );
+            } else {
+                res.push(
+                    RegIter::new(114, left, 0x20000000000000000000000000000)
+                );
+            }
+        }
+        res
+    }
 }
 
 impl Register {
@@ -87,6 +122,15 @@ impl Register {
             if self.value & (1 << (self.size - 1)) != 0 { 1 } else { 0 }
         }
         else { self.proto_shift(0) }
+    }
+    
+    fn shift_b(&mut self, con: bool) -> u8 {
+        /*let result = */if !con {
+            if self.value & (1 << (self.size - 1)) != 0 { 1 } else { 0 }
+        }
+        else { self.proto_shift(0) }/*;
+        print!("{result}\t");
+        result*/
     }
     
     fn get_control_bit(&self) -> u8 {

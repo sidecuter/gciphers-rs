@@ -1,6 +1,5 @@
 use std::error::Error;
 use crate::alphabet::Alphabet;
-use std::vec::Vec;
 use crate::errors::{InvalidIndex, InvalidKeyError};
 
 fn get_order (alphabet: &Alphabet, key: &str) -> Result<Vec<usize>, Box<dyn Error>> {

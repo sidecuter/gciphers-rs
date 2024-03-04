@@ -1,7 +1,7 @@
 use std::error::Error;
 use crate::methods::{bytes_to_hex, bytes_to_string, hex_to_bytes, str_to_bytes};
 use super::{process, Register, RegIter};
-use super::System;
+use super::{System, to_64};
 
 struct Sys {
     r1: Register,
@@ -50,6 +50,15 @@ impl Sys {
             self.r3.proto_shift(cadr_bit);
         }
     }
+}
+
+impl System for Sys {
+    fn magority(&self) -> u8 {
+        let x = self.r1.get_control_bit();
+        let y = self.r2.get_control_bit();
+        let z = self.r3.get_control_bit();
+        (x&y)|(x&z)|(y&z)
+    }
 
     fn prepare(&mut self) {
         self.drop();
@@ -70,46 +79,6 @@ impl Sys {
         self.cadr += 1;
         res
     }
-
-    fn process(&mut self, phrase_len_bits: usize) -> Vec<RegIter<u128>> {
-        let mut res = Vec::new();
-        let ost = phrase_len_bits % 114;
-        let count = if ost != 0 {
-            phrase_len_bits / 114 + 1
-        } else { phrase_len_bits / 114 };
-        let ost = if ost == 0 { 114 } else { ost };
-        for i in 0..count {
-            let left = self.takt();
-            if i == count - 1 {
-                res.push(
-                    RegIter::new(ost as u8, left, 0x20000000000000000000000000000)
-                );
-            } else {
-                res.push(
-                    RegIter::new(114, left, 0x20000000000000000000000000000)
-                );
-            }
-        }
-        res
-    }
-}
-
-impl System for Sys {
-    fn magority(&self) -> u8 {
-        let x = self.r1.get_control_bit();
-        let y = self.r2.get_control_bit();
-        let z = self.r3.get_control_bit();
-        (x&y)|(x&z)|(y&z)
-    }
-}
-
-fn to_64(vec: &[u8]) -> u64 {
-    let mut shift: i64 = 56;
-    vec.iter().map(|num| {
-        let result = (*num as u64) << shift;
-        shift -= 8;
-        result
-    }).sum()
 }
 
 fn proto(phrase: &[u8], key: &str) -> Result<Vec<u8>, Box<dyn Error>> {

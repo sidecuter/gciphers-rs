@@ -24,7 +24,6 @@ use gtk::prelude::*;
 
 mod imp {
     use std::cell::Cell;
-    use adw::Bin;
     use adw::prelude::BinExt;
     use gtk::{Button, template_callbacks};
     use gtk::prelude::WidgetExt;
@@ -44,7 +43,7 @@ mod imp {
         #[template_child]
         pub text_view: TemplateChild<UITextView>,
         #[template_child]
-        pub placeholder: TemplateChild<Bin>,
+        pub placeholder: TemplateChild<adw::Bin>,
         #[template_child]
         pub rows: TemplateChild<UIEntry>,
         #[template_child]
@@ -127,11 +126,11 @@ mod imp {
                     return;
                 }
             };
-            if 2 > rows || rows > 10 {
+            if !(2..=10).contains(&rows) {
                 window.show_message("Количество рядов не может быть меньше 2 и больше 10");
                 return;
             }
-            if 2 > cols || cols > 10 {
+            if !(2..=10).contains(&cols) {
                 window.show_message("Количество столбцов не может быть меньше 2 и больше 10");
                 return;
             }
@@ -149,7 +148,7 @@ mod imp {
                 Ok(res) => Some(res),
                 Err(e) => {
                     window.show_message(&e.to_string());
-                    return None;
+                    None
                 }
             }
         }
@@ -161,7 +160,7 @@ mod imp {
                 Ok(res) => Some(res),
                 Err(e) => {
                     window.show_message(&e.to_string());
-                    return None;
+                    None
                 }
             }
         }
@@ -169,7 +168,7 @@ mod imp {
         #[template_callback]
         fn on_encrypt_click(&self, _button: &Button) {
             self.call_p(|window, text, (grid, rows, cols)| {
-                let mut text = String::from(window.mask_text(text));
+                let mut text = window.mask_text(text);
                 let mut result = String::new();
                 if !window.get_prettify_state() {
                     if text.chars().count() == 42 {
@@ -177,12 +176,12 @@ mod imp {
                     }
                     result.push_str(&self.get_encrypted_text(window, &text, grid, rows, cols)?);
                 } else {
-                    let mut chars: Vec<char> = text.chars().map(|letter| letter).collect();
+                    let mut chars: Vec<char> = text.chars().collect();
                     if chars.len() % rows * cols != 0 {
                         chars.extend(vec!['\u{0444}'; rows * cols - chars.len() % (rows * cols)]);
                     }
                     for part in chars.windows(rows*cols).step_by(rows*cols) {
-                        let part: String = part.iter().map(|letter| *letter).collect();
+                        let part: String = part.iter().copied().collect();
                         result.push_str(&self.get_encrypted_text(
                             window, &part, grid.clone(), rows, cols)?
                         );
@@ -200,9 +199,9 @@ mod imp {
                 if !window.get_prettify_state() {
                     result.push_str(&self.get_decrypted_text(window, &text, grid, rows, cols)?);
                 } else {
-                    let chars: Vec<char> = text.chars().map(|letter| letter).collect();
+                    let chars: Vec<char> = text.chars().collect();
                     for part in chars.windows(rows*cols).step_by(rows*cols) {
-                        let part: String = part.iter().map(|letter| *letter).collect();
+                        let part: String = part.iter().copied().collect();
                         result.push_str(&self.get_decrypted_text(
                             window, &part, grid.clone(), rows, cols)?
                         );

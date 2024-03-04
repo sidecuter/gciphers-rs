@@ -12,3 +12,5 @@ pub mod vetrical;
 pub mod feistel;
 pub mod shenon;
 pub mod ctr_magma;
+pub mod a5_1;
+pub mod a5_2;

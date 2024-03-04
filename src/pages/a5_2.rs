@@ -1,4 +1,4 @@
-/* feistel.rs
+/* a5_2.rs
  *
  * Copyright 2024 Alexander Svobodov
  *
@@ -31,14 +31,13 @@ mod imp {
     use crate::ui::text_view::UITextView;
     use crate::window::GCiphersRsWindow;
 
-    use encryption::magma::{encrypt, decrypt};
-    use encryption::methods::{hex_to_str, str_to_hex};
+    use encryption::a5_2::*;
 
     use super::*;
 
     #[derive(Debug, Default, gtk::CompositeTemplate)]
-    #[template(resource = "/com/github/sidecuter/gciphers_rs/feistel.ui")]
-    pub struct GCiphersRsFeistel {
+    #[template(resource = "/com/github/sidecuter/gciphers_rs/a5_2.ui")]
+    pub struct GCiphersRsA52 {
         #[template_child]
         pub text_view: TemplateChild<UITextView>,
         #[template_child]
@@ -46,9 +45,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for GCiphersRsFeistel {
-        const NAME: &'static str = "GCiphersRsFeistel";
-        type Type = super::GCiphersRsFeistel;
+    impl ObjectSubclass for GCiphersRsA52 {
+        const NAME: &'static str = "GCiphersRsA52";
+        type Type = super::GCiphersRsA52;
         type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
@@ -61,14 +60,14 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for GCiphersRsFeistel {}
-    impl WidgetImpl for GCiphersRsFeistel {}
-    impl BinImpl for GCiphersRsFeistel {}
+    impl ObjectImpl for GCiphersRsA52 {}
+    impl WidgetImpl for GCiphersRsA52 {}
+    impl BinImpl for GCiphersRsA52 {}
 
     #[template_callbacks]
-    impl GCiphersRsFeistel {
+    impl GCiphersRsA52 {
         fn call_p<T>(&self, action: T)
-            where T: Fn(&GCiphersRsWindow, &str, &str) -> Option<String>
+            where T: Fn(&str, &str) -> Result<String, Box<dyn Error>>
         {
             let root = self.obj().root().expect("Не удалось получить окно");
             let window = root
@@ -78,70 +77,37 @@ mod imp {
                 .expect("Приведение не удалось");
             let text = self.text_view.get().get_text();
             let key = self.key.get().text().to_string();
-            let result = action(window, &text, &key);
+            let result = match action(&text, &key) {
+                Ok(res) => Some(res),
+                Err(e) => {
+                    window.show_message(&e.to_string());
+                    None
+                }
+            };
             if let Some(result) = result {
                 self.text_view.get().set_text(&result);
             }
         }
 
-        fn get_string(&self, res: Result<String, Box<dyn Error>>, window: &GCiphersRsWindow) -> Option<String> {
-            match res {
-                Ok(result) => Some(result),
-                Err(e) => {
-                    window.show_message(&e.to_string());
-                    None
-                }
-            }
-        }
-
         #[template_callback]
         fn on_encrypt_click(&self, _button: &Button) {
-            self.call_p(|window, text, key| {
-                if key.chars().count() != 64 {
-                    window.show_message("Ключ должен состоять из 32 байт");
-                    return None;
-                }
-                let result = if window.get_prettify_state() {
-                    self.get_string(encrypt(&str_to_hex(text, 8), key), window)?
-                } else {
-                    self.get_string(encrypt(text, key), window)?
-                };
-                Some(result)
-            })
+            self.call_p(encrypt)
         }
 
         #[template_callback]
         fn on_decrypt_click(&self, _button: &Button) {
-            self.call_p(|window, text, key| {
-                if key.chars().count() != 64 {
-                    window.show_message("Ключ должен состоять из 32 байт");
-                    return None;
-                }
-                let result = if window.get_prettify_state() {
-                    let result = match decrypt(text, key) {
-                        Ok(result) => result,
-                        Err(e) => {
-                            window.show_message(&e.to_string());
-                            return None;
-                        }
-                    };
-                    self.get_string(hex_to_str(&result), window)?
-                } else {
-                    self.get_string(decrypt(text, key), window)?
-                };
-                Some(result)
-            })
+            self.call_p(decrypt)
         }
     }
 }
 
 glib::wrapper! {
-    pub struct GCiphersRsFeistel(ObjectSubclass<imp::GCiphersRsFeistel>)
+    pub struct GCiphersRsA52(ObjectSubclass<imp::GCiphersRsA52>)
         @extends gtk::Widget, adw::Bin,
         @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
-impl GCiphersRsFeistel {
+impl GCiphersRsA52 {
     pub fn new() -> Self {
         glib::Object::builder().build()
     }

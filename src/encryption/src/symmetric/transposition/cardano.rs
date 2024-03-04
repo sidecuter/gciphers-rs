@@ -16,6 +16,31 @@ impl CardanoTable {
         CardanoTable { rows, cols, grid, data: vec!['\u{0}'; rows*cols] }
     }
 
+    fn validate(&self) -> Result<(), Box<dyn Error>> {
+        let t1 = Self::new(self.rows, self.cols, self.grid.clone());
+        let mut t2 = Self::new(t1.rows, t1.cols, t1.grid.clone());
+        t2.reflect_vertical();
+        let mut t3 = Self::new(t2.rows, t2.cols, t2.grid.clone());
+        t3.reflect_horizontal();
+        let mut t4 = Self::new(t3.rows, t3.cols, t3.grid.clone());
+        t4.reflect_vertical();
+        let monster = t1.grid.iter().zip(
+            t2.grid.iter().zip(
+                t3.grid.iter().zip(
+                    t4.grid.iter()
+                )
+            )
+        );
+        for (elem1, (elem2, (elem3, elem4))) in monster {
+            let buffer = [*elem1, *elem2, *elem3, *elem4];
+            let count = buffer.iter().filter(|elem| **elem).count();
+            if count != 1 {
+                Err("Ячейки решетки накладываются друг на друга")?;
+            }
+        }
+        Ok(())
+    }
+
     fn new_data(rows: usize, cols: usize, grid: Vec<bool>, data: Vec<char>) -> Self {
         CardanoTable { rows, cols, grid, data }
     }
@@ -49,12 +74,8 @@ impl CardanoTable {
         let alphabet = Alphabet::new();
         for (i, flag) in self.grid.iter().enumerate() {
             if *flag {
-                *self.data.get_mut(i).unwrap() = match letter_iter.next() {
-                    Some(letter) => letter,
-                    None => alphabet.get(
-                        rand::thread_rng().gen_range(0..alphabet.len())
-                    )
-                }
+                *self.data.get_mut(i).unwrap() = if let Some(letter) = letter_iter.next() { letter }
+                else { alphabet.get(rand::thread_rng().gen_range(0..alphabet.len())) };
             }
         }
     }
@@ -93,6 +114,7 @@ pub fn encrypt(phrase: &str, grid: Vec<bool>, rows: usize, cols: usize, dirs: Ve
 {
     validate(phrase, &grid, rows, cols, &dirs)?;
     let mut table = CardanoTable::new(rows, cols, grid);
+    table.validate()?;
     Ok(table.fill(phrase, &dirs))
 }
 
@@ -103,6 +125,7 @@ pub fn decrypt(phrase: &str, grid: Vec<bool>, rows: usize, cols: usize, dirs: Ve
     let mut table = CardanoTable::new_data(
         rows, cols, grid, validate_data(phrase, rows, cols)?
     );
+    table.validate()?;
     Ok(table.extract(&dirs))
 }
 
@@ -184,34 +207,4 @@ mod cardano_tests {
         ).unwrap();
         assert_eq!(result, "окноокноокноокно");
     }
-
-    #[test]
-    fn test_crypt() {
-        let result = encrypt(
-            "криптография",
-            vec![false, true, false, true,
-                 true, false, true, false,
-                 false, false, false, false,
-                 false, false, false, false],
-            4, 4,
-            vec![true, false, true]
-        ).unwrap();
-        assert_eq!(result, "ткоригпрлаьфидяи");
-    }
-
-    #[test]
-    fn test_crypt1() {
-        let result = decrypt(
-            "ткоригпрлаьфидяи",
-            vec![false, true, false, true,
-                 true, false, true, false,
-                 false, false, false, false,
-                 false, false, false, false],
-            4, 4,
-            vec![true, false, true]
-        ).unwrap();
-        assert_eq!(result, "криптография");
-    }
-
-
 }

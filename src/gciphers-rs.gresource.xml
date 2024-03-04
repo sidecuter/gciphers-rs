@@ -22,6 +22,7 @@
         <file alias="shenon.ui" compressed="true" preprocess="xml-stripblanks">resources/shenon.ui</file>
         <file alias="ctr_magma.ui" compressed="true" preprocess="xml-stripblanks">resources/ctr_magma.ui</file>
         <file alias="a5_1.ui" compressed="true" preprocess="xml-stripblanks">resources/a5_1.ui</file>
+        <file alias="a5_2.ui" compressed="true" preprocess="xml-stripblanks">resources/a5_2.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     </gresource>

@@ -24,6 +24,7 @@ use adw::subclass::prelude::*;
 use gtk::{gio, glib};
 use crate::menu_entry::GCiphersMenuEntry;
 use crate::pages::a5_1::GCiphersRsA51;
+use crate::pages::a5_2::GCiphersRsA52;
 use crate::pages::atbash::GCiphersRsAtbash;
 use crate::pages::caesar::GCiphersRsCaesar;
 use crate::pages::polybius::GCiphersRsPolybius;
@@ -155,6 +156,7 @@ impl GCiphersRsWindow {
         pages.append(&GCiphersRsShenon::new());
         pages.append(&GCiphersRsCtrMagma::new());
         pages.append(&GCiphersRsA51::new());
+        pages.append(&GCiphersRsA52::new());
         self.imp().pages.replace(Some(pages));
     }
 
@@ -175,6 +177,7 @@ impl GCiphersRsWindow {
             String::from("Шеннон"),
             String::from("CTR Магма"),
             String::from("A5/1"),
+            String::from("A5/2"),
         ];
         self.imp().labels.replace(Some(labels));
         self.setup_rows();

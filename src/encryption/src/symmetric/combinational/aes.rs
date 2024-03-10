@@ -65,8 +65,8 @@ fn key_expansion(key: &[u8]) -> Vec<Vec<u8>> {
             let mut tmp: Vec<u8> = (1..4usize).map(|row| result[row][col-1]).collect();
             tmp.push(result[0][col-1]);
             for item in tmp.iter_mut() {
-                let sbox_row = *item / 0x10;
-                let sbox_col = *item % 0x10;
+                let sbox_row = (*item & 0xF0) >> 4;
+                let sbox_col = *item & 0x0F;
                 let sbox_elem =  S[(16*sbox_row + sbox_col) as usize];
                 *item = sbox_elem;
             }
@@ -108,7 +108,7 @@ fn sub_bytes(state: &[Vec<u8>], sbox: &[u8]) -> Vec<Vec<u8>> {
     state.iter().map(|line| (*line).iter().map(|item| {
         let r = (*item & 0xF0) >> 4;
         let c = *item & 0x0F;
-        sbox[(16*r + c) as usize]
+        sbox[(16*r+c) as usize]
     }).collect()).collect()
 }
 

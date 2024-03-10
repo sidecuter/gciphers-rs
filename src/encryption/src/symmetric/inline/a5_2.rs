@@ -25,12 +25,9 @@ fn get_bit(x: u32) -> u32 {
 }
 
 fn mag(l: u32, r: u32, size: u8) -> u32 {
-    // print!("0b{:0size$b}\t", l&r, size=size as usize);
     let ri = RegIter::new(size, l & r, 1 << (size - 1));
-    let sum = ri.filter(|x| *x == 1).map(|x| x as u32).sum();
-    /*let result = */get_bit(sum)/*;
-    print!("{result}\t");
-    result*/
+    let sum: u32 = ri.filter(|x| *x == 1).map(|x| x as u32).sum();
+    if sum >= 2 { 1 } else { 0 }
 }
 
 impl Sys {
@@ -55,29 +52,18 @@ impl Sys {
     }
 
     fn step(&mut self) -> u8 {
-        // print!("0b{:0size$b}\t", self.r1.value, size=self.r1.size as usize);
-        // print!("0b{:0size$b}\t", self.r2.value, size=self.r2.size as usize);
-        // print!("0b{:0size$b}\t", self.r3.value, size=self.r3.size as usize);
-        // print!("0b{:0size$b}\t", self.r4.value, size=self.r4.size as usize);
         let m = mag(self.r4.value, self.r4_mag, 17);
         let m1 = get_bit(self.r4.value&MASK_R4_10) == m;
         let m2 = get_bit(self.r4.value&MASK_R4_3) == m;
         let m3 = get_bit(self.r4.value&MASK_R4_7) == m;
-        // print!("{}\t", if m1 { 1 } else { 0 });
-        // print!("{}\t", if m2 { 1 } else { 0 });
-        // print!("{}\t", if m3 { 1 } else { 0 });
         self.r4.proto_shift(0);
-        /*let result =*/ self.r1.shift_b(m1) ^ self.r2.shift_b(m2) ^ self.r3.shift_b(m3) ^
+        self.r1.shift_b(m1) ^ self.r2.shift_b(m2) ^ self.r3.shift_b(m3) ^
         mag(self.r1.value, self.r1_mag, 19) as u8 ^
         mag(self.r2.value, self.r2_mag, 22) as u8 ^
-        mag(self.r3.value, self.r3_mag, 23) as u8/*;*/
-        // println!("{result}");
-        /*result*/
+        mag(self.r3.value, self.r3_mag, 23) as u8
     }
 
     fn fill_key(&mut self) {
-        //let key: Vec<u8> = RegIter::new(64, self.key, 1 << 63).collect();
-        //for key_bit in key.into_iter().rev() {
         for key_bit in RegIter::new(64, self.key, 1 << 63) {
             self.r1.proto_shift(key_bit);
             self.r2.proto_shift(key_bit);
@@ -87,8 +73,6 @@ impl Sys {
     }
 
     fn fill_cadr(&mut self) {
-        //let cadr: Vec<u8> = RegIter::new(22, self.cadr, 1 << 21).collect();
-        //for cadr_bit in cadr.into_iter().rev() {
         for cadr_bit in RegIter::new(22, self.cadr, 1 << 21) {
             self.r1.proto_shift(cadr_bit);
             self.r2.proto_shift(cadr_bit);
@@ -116,7 +100,6 @@ impl System for Sys {
     fn takt(&mut self) -> u128 {
         let mut res: u128 = 0;
         self.prepare();
-        //println!("\n\n\n\n");
         for _ in 0..114 {
             res <<= 1;
             res |= self.step() as u128;
@@ -136,6 +119,8 @@ fn proto(phrase: &[u8], key: &str) -> Result<Vec<u8>, Box<dyn Error>> {
 
 pub fn encrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
     let phrase = str_to_bytes(phrase, 1)?;
+    println!("{:?}", phrase);
+    println!("{:?}", hex_to_bytes(key, 8));
     let r = proto(&phrase, key)?;
     Ok(bytes_to_hex(&r))
 }
@@ -155,12 +140,12 @@ mod a5_2_tests {
         let phrase = "ото";
         let key = "ffeeddcc77665544";
         let result = encrypt(phrase, key).unwrap();
-        assert_eq!(result, "752ffe26adc9");
+        assert_eq!(result, "9b84cdab0f44");
     }
 
     #[test]
     fn test_dec() {
-        let phrase = "752ffe26adc9";
+        let phrase = "9b84cdab0f44";
         let key = "ffeeddcc77665544";
         let result = decrypt(phrase, key).unwrap();
         assert_eq!(result, "ото");

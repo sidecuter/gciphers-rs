@@ -33,6 +33,8 @@ use crate::pages::belazo::GCiphersRsBelazo;
 use crate::pages::cardano::GCiphersRsCardano;
 use crate::pages::ctr_magma::GCiphersRsCtrMagma;
 use crate::pages::feistel::GCiphersRsFeistel;
+use crate::pages::kuznechik::GCiphersRsKuznechik;
+use crate::pages::magma::GCiphersRsMagma;
 use crate::pages::matrix::GCiphersRsMatrix;
 use crate::pages::playfair::GCiphersRsPlayfair;
 use crate::pages::shenon::GCiphersRsShenon;
@@ -157,6 +159,8 @@ impl GCiphersRsWindow {
         pages.append(&GCiphersRsCtrMagma::new());
         pages.append(&GCiphersRsA51::new());
         pages.append(&GCiphersRsA52::new());
+        pages.append(&GCiphersRsMagma::new());
+        pages.append(&GCiphersRsKuznechik::new());
         self.imp().pages.replace(Some(pages));
     }
 
@@ -178,6 +182,8 @@ impl GCiphersRsWindow {
             String::from("CTR Магма"),
             String::from("A5/1"),
             String::from("A5/2"),
+            String::from("Магма"),
+            String::from("Кузнечик"),
         ];
         self.imp().labels.replace(Some(labels));
         self.setup_rows();

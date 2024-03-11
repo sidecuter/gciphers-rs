@@ -65,9 +65,7 @@ fn key_expansion(key: &[u8]) -> Vec<Vec<u8>> {
             let mut tmp: Vec<u8> = (1..4usize).map(|row| result[row][col-1]).collect();
             tmp.push(result[0][col-1]);
             for item in tmp.iter_mut() {
-                let sbox_row = (*item & 0xF0) >> 4;
-                let sbox_col = *item & 0x0F;
-                let sbox_elem =  S[(16*sbox_row + sbox_col) as usize];
+                let sbox_elem =  S[*item as usize];
                 *item = sbox_elem;
             }
             for row in 0..4 {
@@ -105,11 +103,8 @@ fn add_round_key(state: &[Vec<u8>], key_schedule: &[Vec<u8>], round: usize) -> V
 }
 
 fn sub_bytes(state: &[Vec<u8>], sbox: &[u8]) -> Vec<Vec<u8>> {
-    state.iter().map(|line| (*line).iter().map(|item| {
-        let r = (*item & 0xF0) >> 4;
-        let c = *item & 0x0F;
-        sbox[(16*r+c) as usize]
-    }).collect()).collect()
+    state.iter().map(|line| (*line).iter().map(|item| sbox[*item as usize]
+    ).collect()).collect()
 }
 
 fn left_shift(line: &[u8], count: usize) -> Vec<u8> {

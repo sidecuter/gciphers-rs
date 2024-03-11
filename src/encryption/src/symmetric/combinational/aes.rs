@@ -1,5 +1,5 @@
 use std::error::Error;
-use crate::methods::{bytes_to_hex, bytes_to_string, hex_to_bytes, str_to_bytes};
+use crate::methods::{bytes_to_hex, hex_to_bytes};
 
 const NK: usize = 4;
 const NB: usize = 4;
@@ -55,6 +55,9 @@ const R_CON: [[u8; 4]; 10] = [
     [ 0x1b, 0x00, 0x00, 0x00 ],
     [ 0x36, 0x00, 0x00, 0x00 ],
 ];
+
+const MIX: [u8; 4] = [0x02, 0x03, 0x01, 0x01];
+const INV_MIX: [u8; 4] = [0x0e, 0x0b, 0x0d, 0x09];
 
 fn key_expansion(key: &[u8]) -> Vec<Vec<u8>> {
     let mut key: Vec<u8> = key.to_vec();
@@ -129,69 +132,27 @@ fn inv_shift_rows(state: &[Vec<u8>]) -> Vec<Vec<u8>> {
     state.iter().enumerate().map(|(i, line)| right_shift(line, i)).collect()
 }
 
-fn mul_by_02(num: u8) -> u8 {
-    let num: u16 = num as u16;
-    ((if num < 0x80 { num << 1 } else { (num << 1) ^ 0x1b }) % 0x100) as u8
-}
-
-fn mul_by_03(num: u8) -> u8 {
-    mul_by_02(num)^num
-}
-
-fn mul_by_09(num: u8) -> u8 {
-    mul_by_02(mul_by_02(mul_by_02(num)))^num
-}
-
-fn mul_by_0b(num: u8) -> u8 {
-    mul_by_02(mul_by_02(mul_by_02(num)))^mul_by_02(num)^num
-}
-
-fn mul_by_0d(num: u8) -> u8 {
-    mul_by_02(mul_by_02(mul_by_02(num)))^mul_by_02(mul_by_02(num))^num
-}
-
-fn mul_by_0e(num: u8) -> u8 {
-    mul_by_02(mul_by_02(mul_by_02(num)))^mul_by_02(mul_by_02(num))^mul_by_02(num)
-}
-
-fn mix_columns(state: &[Vec<u8>]) -> Vec<Vec<u8>> {
-    let mut result = vec![
-        vec![0; NK],
-        vec![0; NK],
-        vec![0; NK],
-        vec![0; NK],
-    ];
-    for i in 0..NB {
-        let s0 = mul_by_02(state[0][i])^mul_by_03(state[1][i])^state[2][i]^state[3][i];
-        let s1 = state[0][i]^mul_by_02(state[1][i])^mul_by_03(state[2][i])^state[3][i];
-        let s2 = state[0][i]^state[1][i]^mul_by_02(state[2][i])^mul_by_03(state[3][i]);
-        let s3 = mul_by_03(state[0][i])^state[1][i]^state[2][i]^mul_by_02(state[3][i]);
-        result[0][i] = s0;
-        result[1][i] = s1;
-        result[2][i] = s2;
-        result[3][i] = s3;
+fn gf_mul(mut left: u8, mut right: u8) -> u8 {
+    let mut result: u8 = 0;
+    let mut hi_bit: u8;
+    for _ in 0..8 {
+        if right & 1 != 0 { result ^= left }
+        hi_bit = left & 0x80;
+        left <<= 1;
+        if hi_bit != 0 { left ^= 0x1b }
+        right >>= 1;
     }
     result
 }
 
-fn inv_mix_columns(state: &[Vec<u8>]) -> Vec<Vec<u8>> {
-    let mut result = vec![
-        vec![0; NK],
-        vec![0; NK],
-        vec![0; NK],
-        vec![0; NK],
-    ];
-    for i in 0..NB {
-        let s0 = mul_by_0e(state[0][i])^mul_by_0b(state[1][i])^mul_by_0d(state[2][i])^mul_by_09(state[3][i]);
-        let s1 = mul_by_09(state[0][i])^mul_by_0e(state[1][i])^mul_by_0b(state[2][i])^mul_by_0d(state[3][i]);
-        let s2 = mul_by_0d(state[0][i])^mul_by_09(state[1][i])^mul_by_0e(state[2][i])^mul_by_0b(state[3][i]);
-        let s3 = mul_by_0b(state[0][i])^mul_by_0d(state[1][i])^mul_by_09(state[2][i])^mul_by_0e(state[3][i]);
-        result[0][i] = s0;
-        result[1][i] = s1;
-        result[2][i] = s2;
-        result[3][i] = s3;
-    }
-    result
+fn mix_columns(state: &[Vec<u8>], coef: &[u8]) -> Vec<Vec<u8>> {
+    (0..4).map(|i| (0..NB).map(|j| {
+        let mut s = 0;
+        for (k, coef) in right_shift(coef, i).iter().enumerate() {
+            s ^= gf_mul(state[k][j], *coef);
+        }
+        s
+    }).collect()).collect()
 }
 
 fn fill_state(input: &[u8]) -> Vec<Vec<u8>> {
@@ -206,13 +167,13 @@ fn fill_result(state: &[Vec<u8>]) -> Vec<u8> {
     result
 }
 
-pub fn enc(input: &[u8], key_schedule: &[Vec<u8>]) -> Vec<u8> {
+fn enc(input: &[u8], key_schedule: &[Vec<u8>]) -> Vec<u8> {
     let mut state = fill_state(input);
     state = add_round_key(&state, &key_schedule, 0);
     for rnd in 1..NR {
         state = sub_bytes(&state, &S);
         state = shift_rows(&state);
-        state = mix_columns(&state);
+        state = mix_columns(&state, &MIX);
         state = add_round_key(&state, &key_schedule, rnd);
     }
     state = sub_bytes(&state, &S);
@@ -221,14 +182,14 @@ pub fn enc(input: &[u8], key_schedule: &[Vec<u8>]) -> Vec<u8> {
     fill_result(&state)
 }
 
-pub fn dec(input: &[u8], key_schedule: &[Vec<u8>]) -> Vec<u8> {
+fn dec(input: &[u8], key_schedule: &[Vec<u8>]) -> Vec<u8> {
     let mut state = fill_state(input);
     state = add_round_key(&state, &key_schedule, NR);
     for rnd in (1..NR).rev() {
         state = inv_shift_rows(&state);
         state = sub_bytes(&state, &S_REVERSE);
         state = add_round_key(&state, &key_schedule, rnd);
-        state = inv_mix_columns(&state);
+        state = mix_columns(&state, &INV_MIX);
     }
     state = inv_shift_rows(&state);
     state = sub_bytes(&state, &S_REVERSE);
@@ -249,19 +210,20 @@ fn proto<T>(input: &[u8], key: &str, func: T) -> Result<Vec<u8>, Box<dyn Error>>
 }
 
 pub fn encrypt(input: &str, key: &str) -> Result<String, Box<dyn Error>> {
-    let input = str_to_bytes(input, 16)?;
+    let input = hex_to_bytes(input, 16)?;
     Ok(bytes_to_hex(&proto(&input, key, enc)?))
 }
 
 pub fn decrypt(input: &str, key: &str) -> Result<String, Box<dyn Error>> {
     let input = hex_to_bytes(input, 16)?;
-    bytes_to_string(&proto(&input, key, dec)?)
+    Ok(bytes_to_hex(&proto(&input, key, dec)?))
 }
 
 #[cfg(test)]
 mod aes_tests {
     use super::*;
-    
+    use crate::methods::{hex_to_str, str_to_hex};
+
     #[test]
     fn test_key_expansion() {
         let key: [u8; 16] = [0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
@@ -349,16 +311,16 @@ mod aes_tests {
 
     #[test]
     fn test_encrypt() {
-        let phrase = "От одного порченого яблока весь воз загнивает.";
+        let phrase = str_to_hex("От одного порченого яблока весь воз загнивает.", 1);
         let key = "2b7e151628aed2a6abf7158809cf4f3c";
         let valid = "8d07448105b69375e77ae4826efa2cd95bbd55430f1a894adf175ad47741caf2f03d3b8f32eede0a578380d4578bfe9ff284f34bf3d995fe80d17d323cd8d1e7b628fca087c7a232f48ce6d172b8770bd198b67d94f76958180cc9c32c2b3ec3";
-        assert_eq!(valid, encrypt(phrase, key).unwrap());
+        assert_eq!(valid, encrypt(&phrase, key).unwrap());
     }
     #[test]
     fn test_decrypt() {
         let phrase = "8d07448105b69375e77ae4826efa2cd95bbd55430f1a894adf175ad47741caf2f03d3b8f32eede0a578380d4578bfe9ff284f34bf3d995fe80d17d323cd8d1e7b628fca087c7a232f48ce6d172b8770bd198b67d94f76958180cc9c32c2b3ec3";
         let key = "2b7e151628aed2a6abf7158809cf4f3c";
         let valid = "От одного порченого яблока весь воз загнивает.";
-        assert_eq!(valid, decrypt(phrase, key).unwrap());
+        assert_eq!(valid, hex_to_str(&decrypt(phrase, key).unwrap()).unwrap());
     }
 }

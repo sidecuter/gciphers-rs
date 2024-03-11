@@ -125,12 +125,10 @@ impl Register {
     }
     
     fn shift_b(&mut self, con: bool) -> u8 {
-        /*let result = */if !con {
+        if !con {
             if self.value & (1 << (self.size - 1)) != 0 { 1 } else { 0 }
         }
-        else { self.proto_shift(0) }/*;
-        print!("{result}\t");
-        result*/
+        else { self.proto_shift(0) }
     }
     
     fn get_control_bit(&self) -> u8 {

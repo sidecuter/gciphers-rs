@@ -23,6 +23,9 @@
         <file alias="ctr_magma.ui" compressed="true" preprocess="xml-stripblanks">resources/ctr_magma.ui</file>
         <file alias="a5_1.ui" compressed="true" preprocess="xml-stripblanks">resources/a5_1.ui</file>
         <file alias="a5_2.ui" compressed="true" preprocess="xml-stripblanks">resources/a5_2.ui</file>
+        <file alias="magma.ui" compressed="true" preprocess="xml-stripblanks">resources/magma.ui</file>
+        <file alias="aes.ui" compressed="true" preprocess="xml-stripblanks">resources/aes.ui</file>
+        <file alias="kuznechik.ui" compressed="true" preprocess="xml-stripblanks">resources/kuznechik.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     </gresource>

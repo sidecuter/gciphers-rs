@@ -55,7 +55,7 @@ struct Register {
 
 trait System {
     fn magority(&self) -> u8;
-    
+
     fn prepare(&mut self);
 
     fn takt(&mut self) -> u128;
@@ -116,21 +116,21 @@ impl Register {
         self.value &= (and_unit << 1) - 1;
         ret_value
     }
-    
+
     fn shift_m(&mut self, magority: u8) -> u8 {
         if magority != self.get_control_bit() {
             if self.value & (1 << (self.size - 1)) != 0 { 1 } else { 0 }
         }
         else { self.proto_shift(0) }
     }
-    
+
     fn shift_b(&mut self, con: bool) -> u8 {
         if !con {
             if self.value & (1 << (self.size - 1)) != 0 { 1 } else { 0 }
         }
         else { self.proto_shift(0) }
     }
-    
+
     fn get_control_bit(&self) -> u8 {
         if self.value & self.control != 0 { 1 } else { 0 }
     }

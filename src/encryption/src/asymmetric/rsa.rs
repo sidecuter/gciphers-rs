@@ -1,7 +1,7 @@
 use rand::Rng;
 use std::error::Error;
 use num::Integer;
-use super::{pow_mod, to_string};
+use super::{get_numbers, pow_mod, to_string};
 use crate::alphabet::Alphabet;
 use crate::errors::{InvalidIndex, InvalidKeyError, InvalidTextError};
 use crate::methods::validate_single;
@@ -14,9 +14,9 @@ pub fn gen_keys(p: usize, q: usize) -> (usize, usize, usize) {
     let phi = (p-1) * (q-1);
     let n = p*q;
     let mut rng = rand::thread_rng();
-    let mut e = rng.gen_range(1..phi);
+    let mut e = rng.gen_range(2..phi);
     while phi.gcd(&e) != 1 {
-        e = rng.gen_range(1..phi);
+        e = rng.gen_range(2..phi);
     }
     let d = pow_mod(e, phi-1, phi);
     (e, d, n)
@@ -37,15 +37,14 @@ pub fn encrypt(phrase: &str, n: usize, e: usize) -> Result<String, Box<dyn Error
 }
 
 fn validate(phrase: &str, n: usize, d: usize) -> Result<Vec<usize>, Box<dyn Error>> {
+    let alphabet = Alphabet::from("0123456789".to_string());
+    alphabet.validate(phrase)?;
     let len = n.to_string().len();
     if d >= n { Err(InvalidKeyError::new("D должно быть меньше либо равно n"))?; }
     if phrase.chars().count() % len != 0 {
         Err(InvalidTextError)?;
     }
-    let result: Vec<_> = phrase.chars().collect::<Vec<char>>()
-        .windows(len).step_by(len)
-        .map(|x| x.iter().collect::<String>().parse::<usize>().unwrap())
-        .collect();
+    let result = get_numbers(phrase, len);
     for letter in result.iter() {
         if *letter >= n {
             Err(InvalidTextError)?;

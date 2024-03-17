@@ -1,3 +1,4 @@
+use num::Integer;
 use crate::methods::modd;
 
 pub mod rsa;
@@ -11,6 +12,12 @@ fn pow_mod(number: usize, power: usize, modula: usize) -> usize {
         result %= modula;
     }
     result
+}
+
+fn get_numbers(phrase: &str, len: usize) -> Vec<usize> {
+    phrase.chars().collect::<Vec<char>>()
+        .windows(len).step_by(len)
+        .map(|x| x.iter().collect::<String>().parse::<usize>().unwrap()).collect()
 }
 
 fn euclid(mut a: usize, mut b: usize) -> Vec<usize> {
@@ -39,6 +46,10 @@ fn eq(a: usize, b: usize, m: usize) -> usize {
     }
     let n = q.len();
     modd((-1isize).pow((n - 1) as u32) * p[n - 1] as isize * b as isize, m)
+}
+
+fn phi(number: usize) -> usize {
+    (1..=number).filter(|x| number.gcd(x) == 1).count()
 }
 
 fn to_string(number: usize, len: usize) -> String {

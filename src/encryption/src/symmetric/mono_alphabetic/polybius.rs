@@ -81,13 +81,13 @@ fn validate_dec(
         let row = row.to_digit(10).ok_or(InvalidIndex)? as usize;
         let col = col.to_digit(10).ok_or(InvalidIndex)? as usize;
         if row > table.last_row || row == 0{
-            return Err(Box::new(OutOfBounds::new("ряд")));
+            return Err(OutOfBounds::new("ряд"))?;
         }
         if col > table.columns || col == 0 {
-            return Err(Box::new(OutOfBounds::new("столбец")));
+            return Err(OutOfBounds::new("столбец"))?;
         }
         if col > table.last_column && row == table.last_row {
-            return Err(Box::new(OutOfBounds::new("столбец")));
+            return Err(OutOfBounds::new("столбец"))?;
         }
     }
     Ok(table)

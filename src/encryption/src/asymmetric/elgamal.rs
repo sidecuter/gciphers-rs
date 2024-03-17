@@ -136,7 +136,6 @@ mod elgamal_tests {
     fn test_encrypt() {
         let phrase = "отодно";
         let p = 41;
-        let x = 15;
         let g = 3;
         let y = 14;
         let valid = "273727251404272627401404";

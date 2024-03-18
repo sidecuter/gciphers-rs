@@ -38,6 +38,7 @@ use crate::pages::kuznechik::GCiphersRsKuznechik;
 use crate::pages::magma::GCiphersRsMagma;
 use crate::pages::matrix::GCiphersRsMatrix;
 use crate::pages::playfair::GCiphersRsPlayfair;
+use crate::pages::rsa::GCiphersRsRSA;
 use crate::pages::shenon::GCiphersRsShenon;
 use crate::pages::stable::GCiphersRsStable;
 use crate::pages::vetrical::GCiphersRsVertical;
@@ -163,6 +164,7 @@ impl GCiphersRsWindow {
         pages.append(&GCiphersRsMagma::new());
         pages.append(&GCiphersRsAES::new());
         pages.append(&GCiphersRsKuznechik::new());
+        pages.append(&GCiphersRsRSA::new());
         self.imp().pages.replace(Some(pages));
     }
 
@@ -187,6 +189,7 @@ impl GCiphersRsWindow {
             String::from("Магма"),
             String::from("AES"),
             String::from("Кузнечик"),
+            String::from("RSA"),
         ];
         self.imp().labels.replace(Some(labels));
         self.setup_rows();

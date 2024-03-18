@@ -7,7 +7,7 @@ use crate::errors::NullSizedValue;
 pub fn modd(num: isize, limit: usize) -> usize {
     let limit = limit as isize;
     if num < 0 {
-        (limit - (-num) % limit) as usize
+        ((limit - (-num)) % limit) as usize
     } else {
         (num % limit) as usize
     }

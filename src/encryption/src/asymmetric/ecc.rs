@@ -1,23 +1,37 @@
 use std::collections::HashMap;
 use std::error::Error;
+use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign};
 use num::Integer;
 use num::integer::Roots;
+use primes::is_prime;
 use rand::Rng;
 use crate::alphabet::Alphabet;
+use crate::errors::InvalidKeyError;
 use crate::methods::{modd, validate_single};
 use super::{phi, pow_mod};
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
-struct Point {
-    a: usize,
-    b: usize,
-    modula: usize,
-    point: Option<(usize, usize)>
+pub struct Point {
+    pub a: isize,
+    pub b: isize,
+    pub modula: usize,
+    pub point: Option<(usize, usize)>
+}
+
+impl Display for Point {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        if self.point.is_some() {
+            let (x, y) = self.get_x_y();
+            write!(f, "({},{})" , x, y)
+        } else {
+            write!(f, "(О)")
+        }
+    }
 }
 
 impl Point {
-    fn new(a: usize, b: usize, x: usize, y: usize, modula: usize) -> Self {
+    pub fn new(a: isize, b: isize, x: usize, y: usize, modula: usize) -> Self {
         let point = Some((x, y));
         Self { a, b, point, modula }
     }
@@ -45,7 +59,7 @@ impl Point {
 
     fn lambda_x2(&self) -> Option<usize> {
         let (self_x, self_y) = self.get_x_y_isize();
-        let left = modd(3 * self_x * self_x + self.a as isize, self.modula);
+        let left = modd(3 * self_x * self_x + self.a, self.modula);
         let right = modd(2 * self_y, self.modula);
         if right == 0 { None? }
         Some(Self::div_by_mod(left, right, self.modula))
@@ -60,7 +74,7 @@ impl Point {
     fn mul(&self, n: usize) -> Self {
         let point = self.clone();
         let mut temp = point.clone();
-        for _ in 2..n {
+        for _ in 1..n {
             temp += point;
         }
         temp
@@ -109,28 +123,21 @@ impl AddAssign for Point {
     }
 }
 
-fn get_points(a: usize, b: usize, modula: usize) -> Vec<Vec<Point>> {
+fn get_points(a: isize, b: isize, modula: usize) -> Vec<Point> {
     let ys: Vec<usize> = (0..modula).collect();
     let y2s: HashMap<usize, usize> = ys.iter().map(|y| (((*y)*(*y)) % modula, *y)).collect();
     let xs = ys.clone();
-    let y4x: Vec<usize> = xs.iter().map(|x| ((*x).pow(3) + a * (*x) + b) % modula).collect();
+    let y4x: Vec<usize> = xs.iter().map(|x|
+        modd((*x).pow(3) as isize + a * (*x) as isize + b, modula)).collect();
     let y4x: Vec<Option<usize>> = y4x.iter()
         .map(|y| if y2s.contains_key(y) { Some(*y) } else { None }).collect();
     let mut xys = Vec::new();
     for (y4xi, xsi) in y4x.into_iter().zip(xs.into_iter())
         .filter(|a| a.0.is_some())
         .map(|a| (a.0.unwrap(), a.1)) {
+        xys.push(Point::new(a, b, xsi, y2s[&y4xi], modula));
         if y2s[&y4xi] != 0 {
-            xys.push(vec![Point::new(a, b, xsi, y2s[&y4xi], modula)]);
-            xys.push(vec![Point::new(a, b, xsi, modd(-(y2s[&y4xi] as isize), modula), modula)]);
-        } else {
-            xys.push(vec![Point::new(a, b, xsi, y2s[&y4xi], modula)]);
-        }
-    }
-    for i in 0..xys.len() {
-        for j in 0..modula - 2 {
-            let next_elem = xys[i][0].clone() + xys[i][j].clone();
-            xys[i].push(next_elem);
+            xys.push(Point::new(a, b, xsi, modd(-(y2s[&y4xi] as isize), modula), modula));
         }
     }
     xys
@@ -138,36 +145,71 @@ fn get_points(a: usize, b: usize, modula: usize) -> Vec<Vec<Point>> {
 
 fn get_q(n: usize) -> usize{
     let mut q = 1;
-    for i in 2..n.sqrt() {
-        if n.gcd(&i) == 1 { q = i; }
+    for i in 3..n {
+        if n.gcd(&i) == i && is_prime(i as u64) { q = i; }
     }
     if q == 1 { n } else { q }
 }
 
-pub fn get_keys(a: usize, b: usize, modula: usize) -> (Point, usize, Point, usize) {
+pub fn get_keys() -> (Point, usize, usize) {
     let mut rng = rand::thread_rng();
+    //let modula: usize = rng.gen_range(33..60);
+    //let mut a: isize = rng.gen_range(1..modula as isize);
+    //let mut b: isize = rng.gen_range(1..modula as isize);
+    // while !validate_ell(a, b, modula) {
+    //     a = rng.gen_range(1..modula as isize);
+    //     b = rng.gen_range(1..modula as isize);
+    // }
+    let a = 3;
+    let b = 4;
+    let modula = 11;
     let points_group = get_points(a, b, modula);
     let n = points_group.len() + 1;
     let q = get_q(n);
     let h = n / q;
     let mut index = rng.gen_range(0..points_group.len());
-    while points_group[index][0].mul(h).point.is_none() {
+    while points_group[index].mul(h).point.is_none() {
         index = rng.gen_range(0..points_group.len());
     }
-    let g = points_group[index][0].mul(h);
+    let g = points_group[index].mul(h);
     let secret = rng.gen_range(1..q);
-    let open = g.mul(secret);
-    (g, q, open, secret)
+    (g, q, secret)
 }
 
-pub fn encrypt(phrase: &str, db: Point, g: Point, q: usize) -> Result<String, Box<dyn Error>> {
+fn validate_ell(a: isize, b: isize, modula: usize) -> bool {
+    modd(4 * a.pow(3) + 27*b.pow(2), modula) != 0
+}
+
+pub fn enc(mi: isize, db: &Point, g: &Point, mut k: usize, q: usize) -> (Point, usize) {
+    let mut r = g.mul(k);
+    let mut p = db.mul(k);
+    let (mut x, _) = p.get_x_y_isize();
+    let mut rng = rand::thread_rng();
+    while x == 0 {
+        k = rng.gen_range(1..q);
+        r = g.mul(k);
+        p = db.mul(k);
+        (x, _) = p.get_x_y_isize();
+    }
+    (r, modd(mi * x, p.modula))
+}
+
+pub fn encrypt(phrase: &str, cb: usize, g: Point, q: usize) -> Result<String, Box<dyn Error>> {
     let alphabet = Alphabet::new();
     validate_single(&alphabet, phrase)?;
+    let db= g.mul(cb);
+    if !validate_ell(g.a, g.b, g.modula) {
+        Err(InvalidKeyError::new("Кривая не соответстует условию"))?;
+    }
     let mut rng = rand::thread_rng();
-    let k = rng.gen_range(1..q);
-    let _r = g.mul(k);
-    let _p = db.mul(k);
-    todo!()
+    let phrase: Vec<usize> = phrase.chars().map(|x| alphabet.index_of(x) + 1).collect();
+    let mut result = Vec::new();
+    for mi in phrase {
+        let k = rng.gen_range(1..q);
+        let (r, e) = enc(mi as isize, &db, &g, k, q);
+        result.push(format!("({},{})", r.to_string(), e));
+    }
+    Ok(result.join(","))
 }
 
 #[cfg(test)]
@@ -177,5 +219,20 @@ mod ecc_tests {
     #[test]
     fn test_get_points() {
         println!("{:#?}", get_points(1, 3, 7))
+    }
+
+    #[test]
+    fn test_enc() {
+        let g = Point::new(3, 4, 4, 6, 11);
+        let db = g.mul(4);
+        let (r, e) = enc(10, &db, &g, 5, 7);
+        println!("({},{})", r.to_string(), e);
+    }
+
+    #[test]
+    fn test_encrypt() {
+        let phrase = "отодно";
+        let (g, q, secret) = get_keys();
+        println!("{}", encrypt(phrase ,secret, g, q).unwrap())
     }
 }

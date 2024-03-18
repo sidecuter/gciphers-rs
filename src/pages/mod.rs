@@ -17,3 +17,6 @@ pub mod a5_2;
 pub mod magma;
 pub mod kuznechik;
 pub mod aes;
+pub mod rsa;
+pub mod elgamal;
+pub mod ecc;

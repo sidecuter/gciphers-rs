@@ -33,11 +33,14 @@ use crate::pages::trithemium::GCiphersRsTrithemium;
 use crate::pages::belazo::GCiphersRsBelazo;
 use crate::pages::cardano::GCiphersRsCardano;
 use crate::pages::ctr_magma::GCiphersRsCtrMagma;
+use crate::pages::ecc::GCiphersRsECC;
+use crate::pages::elgamal::GCiphersRsElgamal;
 use crate::pages::feistel::GCiphersRsFeistel;
 use crate::pages::kuznechik::GCiphersRsKuznechik;
 use crate::pages::magma::GCiphersRsMagma;
 use crate::pages::matrix::GCiphersRsMatrix;
 use crate::pages::playfair::GCiphersRsPlayfair;
+use crate::pages::rsa::GCiphersRsRSA;
 use crate::pages::shenon::GCiphersRsShenon;
 use crate::pages::stable::GCiphersRsStable;
 use crate::pages::vetrical::GCiphersRsVertical;
@@ -163,6 +166,9 @@ impl GCiphersRsWindow {
         pages.append(&GCiphersRsMagma::new());
         pages.append(&GCiphersRsAES::new());
         pages.append(&GCiphersRsKuznechik::new());
+        pages.append(&GCiphersRsRSA::new());
+        pages.append(&GCiphersRsElgamal::new());
+        pages.append(&GCiphersRsECC::new());
         self.imp().pages.replace(Some(pages));
     }
 
@@ -187,6 +193,9 @@ impl GCiphersRsWindow {
             String::from("Магма"),
             String::from("AES"),
             String::from("Кузнечик"),
+            String::from("RSA"),
+            String::from("Elgamal"),
+            String::from("ECC"),
         ];
         self.imp().labels.replace(Some(labels));
         self.setup_rows();

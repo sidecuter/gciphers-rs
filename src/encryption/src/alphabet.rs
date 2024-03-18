@@ -7,6 +7,13 @@ pub struct Alphabet {
 }
 
 impl Alphabet {
+    pub fn has(&self, index_of: usize) -> bool {
+        match self.alphabet.chars().nth(index_of) {
+            Some(_) => true,
+            None => false
+        }
+    }
+
     pub fn get(&self, index: usize) -> char {
         match self.alphabet.chars().nth(index) {
             Some(letter) => letter,

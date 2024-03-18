@@ -27,6 +27,7 @@
         <file alias="aes.ui" compressed="true" preprocess="xml-stripblanks">resources/aes.ui</file>
         <file alias="kuznechik.ui" compressed="true" preprocess="xml-stripblanks">resources/kuznechik.ui</file>
         <file alias="rsa.ui" compressed="true" preprocess="xml-stripblanks">resources/rsa.ui</file>
+        <file alias="elgamal.ui" compressed="true" preprocess="xml-stripblanks">resources/elgamal.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     </gresource>

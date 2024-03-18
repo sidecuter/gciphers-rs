@@ -51,12 +51,12 @@ impl Iterator for Generator {
 pub fn gen_keys() -> (usize, usize, usize, usize) {
     let alphabet = Alphabet::new();
     let mut rng = rand::thread_rng();
-    let mut p = rng.gen_range(2..alphabet.len());
+    let mut p = rng.gen_range(alphabet.len()+1..60);
     while !is_prime(p as u64) {
-        p = rng.gen_range(2..alphabet.len());
+        p = rng.gen_range(alphabet.len()+1..60);
     }
-    let x = rng.gen_range(2..alphabet.len());
-    let g = rng.gen_range(2..alphabet.len());
+    let x = rng.gen_range(2..p);
+    let g = rng.gen_range(2..p);
     let y = pow_mod(g, x, p);
     (p, x, g, y)
 }

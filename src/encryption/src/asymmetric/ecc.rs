@@ -23,7 +23,7 @@ pub struct Point {
 pub struct CipherValue(Point, usize);
 
 impl CipherValue {
-    fn new(s: &str, a: isize, b: isize, modula: usize) -> Self {
+    pub fn new(s: &str, a: isize, b: isize, modula: usize) -> Self {
         let buff: Vec<usize> =  s.to_string()
             .replace(['(', ')'], "")
             .split(',')
@@ -59,7 +59,7 @@ impl Point {
         Self { a, b, point, modula }
     }
 
-    fn get_x_y(&self) -> (usize, usize) {
+    pub fn get_x_y(&self) -> (usize, usize) {
         if let Some((x, y)) = self.point {
             (x, y)
         } else { (0, 0) }

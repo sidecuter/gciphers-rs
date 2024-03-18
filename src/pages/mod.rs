@@ -19,3 +19,4 @@ pub mod kuznechik;
 pub mod aes;
 pub mod rsa;
 pub mod elgamal;
+pub mod ecc;

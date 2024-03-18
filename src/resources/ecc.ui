@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="GCiphersRsECC" parent="AdwBin">
+        <property name="name">ECC</property>
+        <property name="margin-bottom">20</property>
+        <property name="margin-end">20</property>
+        <property name="margin-start">20</property>
+        <property name="margin-top">20</property>
+        <child>
+            <object class="GtkScrolledWindow">
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <child>
+                                    <object class="UIEntry" id="a">
+                                        <property name="placeholder_text">a</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="b">
+                                        <property name="placeholder_text">b</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="p">
+                                        <property name="placeholder_text">p</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="q">
+                                        <property name="placeholder_text">q</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton">
+                                        <property name="hexpand">False</property>
+                                        <signal name="clicked" handler="on_gen_click" swapped="true"/>
+                                        <property name="label">Сгенерировать ключи</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="margin-top">10</property>
+                                <property name="orientation">horizontal</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">G</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="gx">
+                                        <property name="placeholder_text">x</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="gy">
+                                        <property name="placeholder_text">y</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="margin-top">10</property>
+                                <property name="orientation">horizontal</property>
+                                <child>
+                                    <object class="UIEntry" id="cb">
+                                        <property name="placeholder_text">Cb</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">Db</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="dbx">
+                                        <property name="placeholder_text">x</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="dby">
+                                        <property name="placeholder_text">y</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="label">Введите текст</property>
+                                <property name="margin-top">10</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="UITextView" id="text_view"/>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="hexpand">True</property>
+                                <property name="margin-top">10</property>
+                                <property name="valign">start</property>
+                                <child>
+                                    <object class="GtkButton">
+                                        <signal name="clicked" handler="on_encrypt_click" swapped="true"/>
+                                        <property name="label">Зашифровать</property>
+                                        <property name="valign">center</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkBox">
+                                        <property name="hexpand">True</property>
+                                        <property name="valign">center</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton">
+                                        <signal name="clicked" handler="on_decrypt_click" swapped="true"/>
+                                        <property name="label">Расшифровать</property>
+                                        <property name="valign">center</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

@@ -29,7 +29,7 @@ pub fn encrypt(phrase: &str, n: usize, e: usize) -> Result<String, Box<dyn Error
     let mut result = String::new();
     let len = n.to_string().len();
     let _: () = proto(
-        &phrase.chars().into_iter().map(|letter| alphabet.index_of(letter)+1).collect::<Vec<usize>>(),
+        &phrase.chars().map(|letter| alphabet.index_of(letter)+1).collect::<Vec<usize>>(),
         e,
         n
     ).into_iter().map(|res| result.push_str(&to_string(res, len))).collect();

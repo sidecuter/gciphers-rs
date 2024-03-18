@@ -24,12 +24,9 @@ pub struct CipherValue(Point, usize);
 
 impl CipherValue {
     fn new(s: &str, a: isize, b: isize, modula: usize) -> Self {
-        // let [x, y, e, ..] = s.to_string().replace("(", "").replace(")", "").split(",");
-        // Self(Point::new(a, b, x, y, modula), e)
         let buff: Vec<usize> =  s.to_string()
-            .replace("(", "")
-            .replace(")", "")
-            .split(",")
+            .replace(['(', ')'], "")
+            .split(',')
             .map(|x| x.parse::<usize>().unwrap())
             .collect();
         match buff[..] {
@@ -98,8 +95,8 @@ impl Point {
     }
 
     fn mul(&self, n: usize) -> Self {
-        let point = self.clone();
-        let mut temp = point.clone();
+        let point = *self;
+        let mut temp = point;
         for _ in 1..n {
             temp += point;
         }
@@ -145,7 +142,7 @@ impl Add for Point {
 
 impl AddAssign for Point {
     fn add_assign(&mut self, rhs: Self) {
-        *self = self.clone() + rhs;
+        *self = *self + rhs;
     }
 }
 

@@ -99,6 +99,7 @@ dependencies = [
  "num",
  "primes",
  "rand",
+ "regex",
 ]
 
 [[package]]

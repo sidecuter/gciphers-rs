@@ -119,8 +119,6 @@ fn proto(phrase: &[u8], key: &str) -> Result<Vec<u8>, Box<dyn Error>> {
 
 pub fn encrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
     let phrase = str_to_bytes(phrase, 1)?;
-    println!("{:?}", phrase);
-    println!("{:?}", hex_to_bytes(key, 8));
     let r = proto(&phrase, key)?;
     Ok(bytes_to_hex(&r))
 }

@@ -3,9 +3,9 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign};
 use num::Integer;
-use num::integer::Roots;
 use primes::is_prime;
 use rand::Rng;
+use regex::Regex;
 use crate::alphabet::Alphabet;
 use crate::errors::InvalidKeyError;
 use crate::methods::{modd, validate_single};
@@ -17,6 +17,32 @@ pub struct Point {
     pub b: isize,
     pub modula: usize,
     pub point: Option<(usize, usize)>
+}
+
+#[derive(Copy, Clone)]
+pub struct CipherValue(Point, usize);
+
+impl CipherValue {
+    fn new(s: &str, a: isize, b: isize, modula: usize) -> Self {
+        // let [x, y, e, ..] = s.to_string().replace("(", "").replace(")", "").split(",");
+        // Self(Point::new(a, b, x, y, modula), e)
+        let buff: Vec<usize> =  s.to_string()
+            .replace("(", "")
+            .replace(")", "")
+            .split(",")
+            .map(|x| x.parse::<usize>().unwrap())
+            .collect();
+        match buff[..] {
+            [x, y, e, ..] => Self(Point::new(a, b, x, y, modula), e),
+            [] | [_] | [_, _] => panic!("Непредвиденное поведение")
+        }
+    }
+}
+
+impl Display for CipherValue {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({},{})", self.0, self.1)
+    }
 }
 
 impl Display for Point {
@@ -151,18 +177,18 @@ fn get_q(n: usize) -> usize{
     if q == 1 { n } else { q }
 }
 
-pub fn get_keys() -> (Point, usize, usize) {
+pub fn get_keys() -> (Point, usize, usize, Point) {
     let mut rng = rand::thread_rng();
-    //let modula: usize = rng.gen_range(33..60);
-    //let mut a: isize = rng.gen_range(1..modula as isize);
-    //let mut b: isize = rng.gen_range(1..modula as isize);
-    // while !validate_ell(a, b, modula) {
-    //     a = rng.gen_range(1..modula as isize);
-    //     b = rng.gen_range(1..modula as isize);
-    // }
-    let a = 3;
-    let b = 4;
-    let modula = 11;
+    let mut modula: usize = rng.gen_range(34..60);
+    while !is_prime(modula as u64) {
+        modula = rng.gen_range(34..60);
+    }
+    let mut a: isize = rng.gen_range(1..10);
+    let mut b: isize = rng.gen_range(1..10);
+    while !validate_ell(a, b, modula) {
+        a = rng.gen_range(1..10);
+        b = rng.gen_range(1..10);
+    }
     let points_group = get_points(a, b, modula);
     let n = points_group.len() + 1;
     let q = get_q(n);
@@ -173,14 +199,15 @@ pub fn get_keys() -> (Point, usize, usize) {
     }
     let g = points_group[index].mul(h);
     let secret = rng.gen_range(1..q);
-    (g, q, secret)
+    let open = g.mul(secret);
+    (g, q, secret, open)
 }
 
 fn validate_ell(a: isize, b: isize, modula: usize) -> bool {
     modd(4 * a.pow(3) + 27*b.pow(2), modula) != 0
 }
 
-pub fn enc(mi: isize, db: &Point, g: &Point, mut k: usize, q: usize) -> (Point, usize) {
+pub fn enc(mi: isize, db: &Point, g: &Point, mut k: usize, q: usize) -> CipherValue {
     let mut r = g.mul(k);
     let mut p = db.mul(k);
     let (mut x, _) = p.get_x_y_isize();
@@ -191,25 +218,52 @@ pub fn enc(mi: isize, db: &Point, g: &Point, mut k: usize, q: usize) -> (Point, 
         p = db.mul(k);
         (x, _) = p.get_x_y_isize();
     }
-    (r, modd(mi * x, p.modula))
+    CipherValue(r, modd(mi * x, p.modula))
 }
 
-pub fn encrypt(phrase: &str, cb: usize, g: Point, q: usize) -> Result<String, Box<dyn Error>> {
+pub fn encrypt(phrase: &str, db: Point, g: Point, q: usize) -> Result<String, Box<dyn Error>> {
     let alphabet = Alphabet::new();
     validate_single(&alphabet, phrase)?;
-    let db= g.mul(cb);
     if !validate_ell(g.a, g.b, g.modula) {
         Err(InvalidKeyError::new("Кривая не соответстует условию"))?;
     }
-    let mut rng = rand::thread_rng();
-    let phrase: Vec<usize> = phrase.chars().map(|x| alphabet.index_of(x) + 1).collect();
-    let mut result = Vec::new();
-    for mi in phrase {
-        let k = rng.gen_range(1..q);
-        let (r, e) = enc(mi as isize, &db, &g, k, q);
-        result.push(format!("({},{})", r.to_string(), e));
+    if !is_prime(g.modula as u64) {
+        Err(InvalidKeyError::new("Модуль кривой не является простым числом"))?;
     }
-    Ok(result.join(","))
+    let mut rng = rand::thread_rng();
+    let result = phrase.chars().map(|x| {
+        let mi = alphabet.index_of(x) + 1;
+        let k = rng.gen_range(1..q);
+        enc(mi as isize, &db, &g, k, q).to_string()
+    }).collect::<Vec<String>>().join("");
+    Ok(result)
+}
+
+pub fn dec(cb: usize, value: CipherValue, modula: usize) -> usize {
+    let q = value.0.mul(cb);
+    let (x, _) = q.get_x_y();
+    modd(value.1 as isize * pow_mod(x, modula-2, modula) as isize, modula)
+}
+
+pub fn decrypt(phrase: &str, cb: usize, a: isize, b: isize, modula: usize)
+    -> Result<String, Box<dyn Error>>
+{
+    let alphabet = Alphabet::from("0123456789(),".to_string());
+    alphabet.validate(phrase)?;
+    let alphabet = Alphabet::new();
+    if !validate_ell(a, b, modula) {
+        Err(InvalidKeyError::new("Кривая не соответстует условию"))?;
+    }
+    if !is_prime(modula as u64) {
+        Err(InvalidKeyError::new("Модуль кривой не является простым числом"))?;
+    }
+    let re = Regex::new(r"(\(\(\d+,\d+\),\d+\))").unwrap();
+    let result: String = re.find_iter(phrase).map(|x| {
+        let val = CipherValue::new(x.as_str(), a, b, modula);
+        let m = dec(cb, val, modula);
+        alphabet.get(m-1)
+    }).collect();
+    Ok(result)
 }
 
 #[cfg(test)]
@@ -217,22 +271,32 @@ mod ecc_tests {
     use super::*;
 
     #[test]
-    fn test_get_points() {
-        println!("{:#?}", get_points(1, 3, 7))
-    }
-
-    #[test]
     fn test_enc() {
         let g = Point::new(3, 4, 4, 6, 11);
         let db = g.mul(4);
-        let (r, e) = enc(10, &db, &g, 5, 7);
-        println!("({},{})", r.to_string(), e);
+        enc(10, &db, &g, 5, 7);
     }
 
     #[test]
     fn test_encrypt() {
         let phrase = "отодно";
-        let (g, q, secret) = get_keys();
-        println!("{}", encrypt(phrase ,secret, g, q).unwrap())
+        let a = 2;
+        let b = 7;
+        let p = 47;
+        let db = Point::new(a, b, 8, 21, p);
+        let g = Point::new(a, b, 8, 26, p);
+        let q = 3;
+        encrypt(phrase, db, g, q).unwrap();
+    }
+
+    #[test]
+    fn test_decrypt() {
+        let phrase = "((8,21),26)((8,21),11)((8,21),26)((8,26),40)((8,21),18)((8,21),26)";
+        let a = 2;
+        let b = 7;
+        let p = 47;
+        let cb = 2;
+        let valid = "отодно";
+        assert_eq!(valid, decrypt(phrase, cb, a, b, p).unwrap());
     }
 }

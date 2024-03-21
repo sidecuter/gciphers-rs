@@ -169,31 +169,31 @@ fn fill_result(state: &[Vec<u8>]) -> Vec<u8> {
 
 fn enc(input: &[u8], key_schedule: &[Vec<u8>]) -> Vec<u8> {
     let mut state = fill_state(input);
-    state = add_round_key(&state, &key_schedule, 0);
+    state = add_round_key(&state, key_schedule, 0);
     for rnd in 1..NR {
         state = sub_bytes(&state, &S);
         state = shift_rows(&state);
         state = mix_columns(&state, &MIX);
-        state = add_round_key(&state, &key_schedule, rnd);
+        state = add_round_key(&state, key_schedule, rnd);
     }
     state = sub_bytes(&state, &S);
     state = shift_rows(&state);
-    state = add_round_key(&state, &key_schedule, NR);
+    state = add_round_key(&state, key_schedule, NR);
     fill_result(&state)
 }
 
 fn dec(input: &[u8], key_schedule: &[Vec<u8>]) -> Vec<u8> {
     let mut state = fill_state(input);
-    state = add_round_key(&state, &key_schedule, NR);
+    state = add_round_key(&state, key_schedule, NR);
     for rnd in (1..NR).rev() {
         state = inv_shift_rows(&state);
         state = sub_bytes(&state, &S_REVERSE);
-        state = add_round_key(&state, &key_schedule, rnd);
+        state = add_round_key(&state, key_schedule, rnd);
         state = mix_columns(&state, &INV_MIX);
     }
     state = inv_shift_rows(&state);
     state = sub_bytes(&state, &S_REVERSE);
-    state = add_round_key(&state, &key_schedule, 0);
+    state = add_round_key(&state, key_schedule, 0);
     fill_result(&state)
 }
 

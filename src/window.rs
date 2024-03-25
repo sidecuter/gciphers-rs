@@ -34,6 +34,7 @@ use crate::pages::belazo::GCiphersRsBelazo;
 use crate::pages::cardano::GCiphersRsCardano;
 use crate::pages::ctr_magma::GCiphersRsCtrMagma;
 use crate::pages::ecc::GCiphersRsECC;
+use crate::pages::egsa::GCiphersRsEgsa;
 use crate::pages::elgamal::GCiphersRsElgamal;
 use crate::pages::feistel::GCiphersRsFeistel;
 use crate::pages::kuznechik::GCiphersRsKuznechik;
@@ -171,6 +172,7 @@ impl GCiphersRsWindow {
         pages.append(&GCiphersRsElgamal::new());
         pages.append(&GCiphersRsECC::new());
         pages.append(&GCiphersRsRSASign::new());
+        pages.append(&GCiphersRsEgsa::new());
         self.imp().pages.replace(Some(pages));
     }
 
@@ -199,6 +201,7 @@ impl GCiphersRsWindow {
             String::from("Elgamal"),
             String::from("ECC"),
             String::from("ЭЦП RSA"),
+            String::from("EGSA"),
         ];
         self.imp().labels.replace(Some(labels));
         self.setup_rows();

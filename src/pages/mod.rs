@@ -20,3 +20,5 @@ pub mod aes;
 pub mod rsa;
 pub mod elgamal;
 pub mod ecc;
+pub mod rsa_sign;
+pub mod egsa;

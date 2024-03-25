@@ -144,7 +144,7 @@
                                 <child>
                                     <object class="GtkButton">
                                         <signal name="clicked" handler="on_sign_click" swapped="true"/>
-                                        <property name="label">Зашифровать</property>
+                                        <property name="label">Подписать текст</property>
                                         <property name="valign">center</property>
                                     </object>
                                 </child>
@@ -156,8 +156,8 @@
                                 </child>
                                 <child>
                                     <object class="GtkButton">
-                                        <signal name="clicked" handler="on_decrypt_click" swapped="true"/>
-                                        <property name="label">Расшифровать</property>
+                                        <signal name="clicked" handler="on_check_sign_click" swapped="true"/>
+                                        <property name="label">Проверить подпись</property>
                                         <property name="valign">center</property>
                                     </object>
                                 </child>

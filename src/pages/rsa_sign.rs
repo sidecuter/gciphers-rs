@@ -150,7 +150,7 @@ mod imp {
         }
 
         #[template_callback]
-        fn on_decrypt_click(&self, _button: &Button) {
+        fn on_check_sign_click(&self, _button: &Button) {
             self.call_p(|window, text, e, n, _, modula, s| {
                 match check_sign(&window.mask_text(text), n, e, s, modula) {
                     Ok(true) => {

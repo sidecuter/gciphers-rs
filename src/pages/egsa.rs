@@ -23,9 +23,9 @@ use gtk::glib;
 use gtk::prelude::*;
 
 mod imp {
-    use gtk::{Button, template_callbacks};
-    use gtk::prelude::WidgetExt;
     use crate::ui::entry::UIEntry;
+    use gtk::prelude::WidgetExt;
+    use gtk::{template_callbacks, Button};
 
     use crate::ui::text_view::UITextView;
     use crate::window::GCiphersRsWindow;
@@ -50,7 +50,7 @@ mod imp {
         #[template_child]
         pub modula: TemplateChild<UIEntry>,
         #[template_child]
-        pub sign_val: TemplateChild<UIEntry>
+        pub sign_val: TemplateChild<UIEntry>,
     }
 
     #[glib::object_subclass]
@@ -76,7 +76,17 @@ mod imp {
     #[template_callbacks]
     impl GCiphersRsEgsa {
         fn call_p<T>(&self, action: T)
-            where T: Fn(&GCiphersRsWindow, &str, usize, usize, usize, usize, usize, (usize, usize)) -> Option<String>
+        where
+            T: Fn(
+                &GCiphersRsWindow,
+                &str,
+                usize,
+                usize,
+                usize,
+                usize,
+                usize,
+                (usize, usize),
+            ) -> Option<String>,
         {
             let root = self.obj().root().expect("Не удалось получить окно");
             let window = root
@@ -93,7 +103,15 @@ mod imp {
             let s = if self.sign_val.get().text().is_empty() {
                 (Ok(0), Ok(0))
             } else {
-                let [ref a, ref b] = self.sign_val.get().text().to_string().split(',').map(|x| x.parse::<usize>()).collect::<Vec<Result<usize, _>>>()[..] else {
+                let [ref a, ref b] = self
+                    .sign_val
+                    .get()
+                    .text()
+                    .to_string()
+                    .split(',')
+                    .map(|x| x.parse::<usize>())
+                    .collect::<Vec<Result<usize, _>>>()[..]
+                else {
                     window.show_message("ЭЦП введена неверно");
                     return;
                 };
@@ -109,7 +127,16 @@ mod imp {
                     }
                 }
             }
-            let result = action(window, &text, args[0], args[1], args[2], args[3], args[4], (args[5], args[6]));
+            let result = action(
+                window,
+                &text,
+                args[0],
+                args[1],
+                args[2],
+                args[3],
+                args[4],
+                (args[5], args[6]),
+            );
             if let Some(result) = result {
                 self.sign_val.get().set_text(&result);
             }
@@ -127,7 +154,18 @@ mod imp {
         #[template_callback]
         fn on_sign_click(&self, _button: &Button) {
             self.call_p(|window, text, p, x, g, _, modula, _| {
-                match sign(&window.mask_text(text), p, g, x, modula, if window.get_prettify_state() { None } else { Some(5) }) {
+                match sign(
+                    &window.mask_text(text),
+                    p,
+                    g,
+                    x,
+                    modula,
+                    if window.get_prettify_state() {
+                        None
+                    } else {
+                        Some(5)
+                    },
+                ) {
                     Ok(res) => Some(format!("{},{}", res.0, res.1)),
                     Err(e) => {
                         window.show_message(&e.to_string());
@@ -144,7 +182,7 @@ mod imp {
                     Ok(true) => {
                         window.show_message("Подпись верна");
                         None
-                    },
+                    }
                     Ok(false) => {
                         window.show_message("Подпись неверна");
                         None

@@ -23,9 +23,9 @@ use gtk::glib;
 use gtk::prelude::*;
 
 mod imp {
-    use gtk::{Button, template_callbacks};
-    use gtk::prelude::WidgetExt;
     use crate::ui::entry::UIEntry;
+    use gtk::prelude::WidgetExt;
+    use gtk::{template_callbacks, Button};
 
     use crate::ui::text_view::UITextView;
     use crate::window::GCiphersRsWindow;
@@ -52,7 +52,7 @@ mod imp {
         #[template_child]
         pub modula: TemplateChild<UIEntry>,
         #[template_child]
-        pub sign_val: TemplateChild<UIEntry>
+        pub sign_val: TemplateChild<UIEntry>,
     }
 
     #[glib::object_subclass]
@@ -78,7 +78,8 @@ mod imp {
     #[template_callbacks]
     impl GCiphersRsRSASign {
         fn call_p<T>(&self, action: T)
-            where T: Fn(&GCiphersRsWindow, &str, usize, usize, usize, usize, usize) -> Option<String>
+        where
+            T: Fn(&GCiphersRsWindow, &str, usize, usize, usize, usize, usize) -> Option<String>,
         {
             let root = self.obj().root().expect("Не удалось получить окно");
             let window = root
@@ -124,11 +125,17 @@ mod imp {
             let q = self.q.get().text().to_string().parse::<usize>();
             let p = match p {
                 Ok(p) => p,
-                Err(e) => { window.show_message(&e.to_string()); return; }
+                Err(e) => {
+                    window.show_message(&e.to_string());
+                    return;
+                }
             };
             let q = match q {
                 Ok(p) => p,
-                Err(e) => { window.show_message(&e.to_string()); return; }
+                Err(e) => {
+                    window.show_message(&e.to_string());
+                    return;
+                }
             };
             let (e, d, n) = gen_keys(p, q);
             self.n.get().set_text(&n.to_string());
@@ -156,7 +163,7 @@ mod imp {
                     Ok(true) => {
                         window.show_message("Подпись верна");
                         None
-                    },
+                    }
                     Ok(false) => {
                         window.show_message("Подпись неверна");
                         None

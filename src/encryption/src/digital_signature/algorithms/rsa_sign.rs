@@ -18,9 +18,13 @@ pub fn sign(phrase: &str, n: usize, d: usize, modula: usize) -> Result<usize, Bo
     Ok(result)
 }
 
-pub fn check_sign(phrase: &str, n: usize, e: usize, s: usize, modula: usize)
-    -> Result<bool, Box<dyn Error>>
-{
+pub fn check_sign(
+    phrase: &str,
+    n: usize,
+    e: usize,
+    s: usize,
+    modula: usize,
+) -> Result<bool, Box<dyn Error>> {
     let alphabet = Alphabet::new();
     validate_single(&alphabet, phrase)?;
     if e >= n {

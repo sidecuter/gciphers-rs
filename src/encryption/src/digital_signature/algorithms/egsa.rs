@@ -16,9 +16,14 @@ fn get_b(m: usize, x: usize, a: usize, k: usize, p: usize) -> usize {
     (m_xa * k_rev) % p
 }
 
-pub fn sign(phrase: &str, p: usize, g: usize, x: usize, modula: usize, k: Option<usize>)
-    -> Result<(usize, usize), Box<dyn Error>>
-{
+pub fn sign(
+    phrase: &str,
+    p: usize,
+    g: usize,
+    x: usize,
+    modula: usize,
+    k: Option<usize>,
+) -> Result<(usize, usize), Box<dyn Error>> {
     let alphabet = Alphabet::new();
     validate_single(&alphabet, phrase)?;
     let m = square_hash(phrase, modula);

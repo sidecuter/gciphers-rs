@@ -101,8 +101,8 @@ impl GciphersRsApplication {
             .version(VERSION)
             .developers(vec!["Alexander Svobodov"])
             .copyright("© 2024 Alexander Svobodov")
+            .license_type(gtk::License::Gpl30)
             .build();
-
         about.present();
     }
 }

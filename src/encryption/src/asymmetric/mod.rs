@@ -1,10 +1,10 @@
 use num::Integer;
 
-pub mod rsa;
-pub mod elgamal;
 pub mod ecc;
+pub mod elgamal;
+pub mod rsa;
 
-fn pow_mod(number: usize, power: usize, modula: usize) -> usize {
+pub fn pow_mod(number: usize, power: usize, modula: usize) -> usize {
     let mut result = number;
     for _ in 1..power {
         result *= number;
@@ -14,9 +14,13 @@ fn pow_mod(number: usize, power: usize, modula: usize) -> usize {
 }
 
 fn get_numbers(phrase: &str, len: usize) -> Vec<usize> {
-    phrase.chars().collect::<Vec<char>>()
-        .windows(len).step_by(len)
-        .map(|x| x.iter().collect::<String>().parse::<usize>().unwrap()).collect()
+    phrase
+        .chars()
+        .collect::<Vec<char>>()
+        .windows(len)
+        .step_by(len)
+        .map(|x| x.iter().collect::<String>().parse::<usize>().unwrap())
+        .collect()
 }
 
 fn phi(number: usize) -> usize {
@@ -24,5 +28,5 @@ fn phi(number: usize) -> usize {
 }
 
 fn to_string(number: usize, len: usize) -> String {
-    format!("{:0size$}", number, size=len)
+    format!("{:0size$}", number, size = len)
 }

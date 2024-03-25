@@ -8,10 +8,7 @@ pub struct Alphabet {
 
 impl Alphabet {
     pub fn has(&self, index_of: usize) -> bool {
-        match self.alphabet.chars().nth(index_of) {
-            Some(_) => true,
-            None => false
-        }
+        self.alphabet.chars().nth(index_of).is_some()
     }
 
     pub fn get(&self, index: usize) -> char {
@@ -32,7 +29,7 @@ impl Alphabet {
         }
     }
 
-    pub fn new() -> Alphabet{
+    pub fn new() -> Alphabet {
         let alphabet = "абвгдежзийклмнопрстуфхцчшщъыьэюя".to_string();
         Alphabet {
             len: alphabet.chars().count(),

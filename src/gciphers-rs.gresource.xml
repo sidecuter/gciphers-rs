@@ -29,6 +29,8 @@
         <file alias="rsa.ui" compressed="true" preprocess="xml-stripblanks">resources/rsa.ui</file>
         <file alias="elgamal.ui" compressed="true" preprocess="xml-stripblanks">resources/elgamal.ui</file>
         <file alias="ecc.ui" compressed="true" preprocess="xml-stripblanks">resources/ecc.ui</file>
+        <file alias="rsa_sign.ui" compressed="true" preprocess="xml-stripblanks">resources/rsa_sign.ui</file>
+        <file alias="egsa.ui" compressed="true" preprocess="xml-stripblanks">resources/egsa.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     </gresource>

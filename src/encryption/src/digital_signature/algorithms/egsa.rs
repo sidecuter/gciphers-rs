@@ -2,7 +2,7 @@ use num::Integer;
 use rand::Rng;
 
 use crate::alphabet::Alphabet;
-use crate::asymmetric::pow_mod;
+use crate::asymmetric::{phi, pow_mod};
 use crate::methods::{modd, validate_single};
 use std::error::Error;
 
@@ -12,7 +12,7 @@ pub use crate::asymmetric::elgamal::gen_keys;
 fn get_b(m: usize, x: usize, a: usize, k: usize, p: usize) -> usize {
     let xa = modd((x * a) as isize, p);
     let m_xa = modd(m as isize - xa as isize, p);
-    let k_rev = pow_mod(k, p - 1, p);
+    let k_rev = pow_mod(k, phi(p) - 1, p);
     (m_xa * k_rev) % p
 }
 

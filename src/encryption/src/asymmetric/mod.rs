@@ -23,7 +23,7 @@ fn get_numbers(phrase: &str, len: usize) -> Vec<usize> {
         .collect()
 }
 
-fn phi(number: usize) -> usize {
+pub fn phi(number: usize) -> usize {
     (1..=number).filter(|x| number.gcd(x) == 1).count()
 }
 

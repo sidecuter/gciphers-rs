@@ -1,3 +1,5 @@
+use std::error::Error;
+use primes::is_prime;
 use rand::Rng;
 use crate::alphabet::Alphabet;
 
@@ -22,8 +24,12 @@ fn pow_mod(left: u128, right: u128, modula: u128) -> u128 {
     result
 }
 
-pub fn sign(message: &str, a: u128, p: u128, x: u128, q: u128, m: u128) -> (u128, u128) {
+pub fn sign(message: &str, a: u128, p: u128, x: u128, q: u128, m: u128) -> Result<(u128, u128), Box<dyn Error>> {
     let mut rang = rand::thread_rng();
+    if p < 32 || !is_prime(p as u64) { Err("Ошибка")?; }
+    if a <=1 || a >= p-1 { Err("Ошибка")?; }
+    if pow_mod(a, q, p) != 1 { Err("Ошибка")?; }
+    if q <= 1 || x <= 1 { Err("Ошибка")?; }
     let mut rs = 0;
     let mut h = square_hash(message, m);
     if h == 0 {
@@ -40,7 +46,7 @@ pub fn sign(message: &str, a: u128, p: u128, x: u128, q: u128, m: u128) -> (u128
         }
         s = (x * rs + k * h) % q;
     }
-    (rs, s)
+    Ok((rs, s))
 }
 
 pub fn check_sign(

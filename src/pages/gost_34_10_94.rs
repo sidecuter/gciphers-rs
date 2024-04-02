@@ -119,8 +119,14 @@ mod imp {
         #[template_callback]
         fn on_sign_click(&self, _button: &Button) {
             self.call_p(|window, text, a, p, q, x, _y, m, _| {
-                let result = sign(&window.mask_text(text), a as u128, p as u128, x as u128, q as u128, m as u128);
-                Some(format!("{},{}", result.0, result.1))
+                //let result = sign(&window.mask_text(text), a as u128, p as u128, x as u128, q as u128, m as u128);
+                match sign(&window.mask_text(text), a as u128, p as u128, x as u128, q as u128, m as u128) {
+                    Ok(result) => Some(format!("{},{}", result.0, result.1)),
+                    Err(e) => {
+                        window.show_message(&e.to_string());
+                        None
+                    }
+                }
             })
         }
 

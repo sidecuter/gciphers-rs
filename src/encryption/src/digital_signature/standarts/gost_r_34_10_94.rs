@@ -1,19 +1,14 @@
 use rand::Rng;
+use crate::alphabet::Alphabet;
 
-use crate::methods::str_to_bytes;
-
-use self::hash::hash_square;
-
-mod hash {
-    pub fn hash_square(m: Vec<u8>) -> u128 {
-        let modula = u128::MAX;
-        let mut h = 0;
-        for mi in m {
-            let mi = mi as u128;
-            h = ((h + mi) * (h + mi)) % modula;
-        }
-        h
+fn square_hash(phrase: &str, modula: u128) -> u128 {
+    let alphabet = Alphabet::new();
+    let mut hi = 0;
+    for mi in phrase.chars().map(|letter| alphabet.index_of(letter) + 1) {
+        let mi = mi as u128;
+        hi = ((hi + mi) * (hi + mi)) % modula;
     }
+    hi
 }
 
 fn pow_mod(left: u128, right: u128, modula: u128) -> u128 {
@@ -27,11 +22,10 @@ fn pow_mod(left: u128, right: u128, modula: u128) -> u128 {
     result
 }
 
-pub fn sign(message: &str, a: u128, p: u128, x: u128, q: u128) -> (u128, u128) {
-    let message_bytes = str_to_bytes(message, 8).expect("творится какая-то дичь");
+pub fn sign(message: &str, a: u128, p: u128, x: u128, q: u128, m: u128) -> (u128, u128) {
     let mut rang = rand::thread_rng();
     let mut rs = 0;
-    let mut h = hash_square(message_bytes);
+    let mut h = square_hash(message, m);
     if h == 0 {
         h = 1;
     }
@@ -55,10 +49,10 @@ pub fn check_sign(
     q: u128,
     a: u128,
     y: u128,
+    m: u128,
     (rs, s): (u128, u128),
 ) -> bool {
-    let message_bytes = str_to_bytes(message, 8).expect("");
-    let mut h = hash_square(message_bytes);
+    let mut h = square_hash(message, m);
     if h == 0 {
         h = 1;
     }

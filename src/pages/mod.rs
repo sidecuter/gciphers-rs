@@ -22,3 +22,4 @@ pub mod elgamal;
 pub mod ecc;
 pub mod rsa_sign;
 pub mod egsa;
+pub mod gost_34_10_94;

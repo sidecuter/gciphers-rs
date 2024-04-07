@@ -3,7 +3,7 @@ use crate::alphabet::Alphabet;
 pub mod egsa;
 pub mod rsa_sign;
 
-fn square_hash(phrase: &str, modula: usize) -> usize {
+pub fn square_hash(phrase: &str, modula: usize) -> usize {
     let alphabet = Alphabet::new();
     let mut hi = 0;
     for mi in phrase.chars().map(|letter| alphabet.index_of(letter) + 1) {

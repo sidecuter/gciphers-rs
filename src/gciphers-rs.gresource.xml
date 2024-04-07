@@ -32,6 +32,7 @@
         <file alias="rsa_sign.ui" compressed="true" preprocess="xml-stripblanks">resources/rsa_sign.ui</file>
         <file alias="egsa.ui" compressed="true" preprocess="xml-stripblanks">resources/egsa.ui</file>
         <file alias="gost_34_10_94.ui" compressed="true" preprocess="xml-stripblanks">resources/gost_34_10_94.ui</file>
+        <file alias="gost_34_10_2012.ui" compressed="true" preprocess="xml-stripblanks">resources/gost_34_10_2012.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     </gresource>

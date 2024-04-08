@@ -33,6 +33,7 @@
         <file alias="egsa.ui" compressed="true" preprocess="xml-stripblanks">resources/egsa.ui</file>
         <file alias="gost_34_10_94.ui" compressed="true" preprocess="xml-stripblanks">resources/gost_34_10_94.ui</file>
         <file alias="gost_34_10_2012.ui" compressed="true" preprocess="xml-stripblanks">resources/gost_34_10_2012.ui</file>
+        <file alias="diffi_hellman.ui" compressed="true" preprocess="xml-stripblanks">resources/diffi_hellman.ui</file>
         <file alias="style.css" compressed="true">resources/style.css</file>
         <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     </gresource>

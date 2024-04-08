@@ -2,6 +2,7 @@ use std::error::Error;
 use primes::is_prime;
 use rand::Rng;
 use crate::alphabet::Alphabet;
+use crate::methods::modd;
 
 fn square_hash(phrase: &str, modula: u128) -> u128 {
     let alphabet = Alphabet::new();
@@ -64,7 +65,7 @@ pub fn check_sign(
     }
     let v = pow_mod(h, q - 2, q);
     let z1 = (s * v) % q;
-    let z2 = ((q - rs) * v) % q;
+    let z2 = modd((q as isize - rs as isize) * v as isize, q as usize) as u128;
     let u = ((pow_mod(a, z1, p) * pow_mod(y, z2, p)) % p) % q;
     u == rs
 }

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="GCiphersRsDiffi" parent="AdwBin">
+        <property name="name">Diffi</property>
+        <property name="margin-bottom">20</property>
+        <property name="margin-end">20</property>
+        <property name="margin-start">20</property>
+        <property name="margin-top">20</property>
+        <child>
+            <object class="GtkScrolledWindow">
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">a</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="a">
+                                        <property name="placeholder_text">a</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">n</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="n">
+                                        <property name="placeholder_text">n</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <property name="margin-top">10</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">Ka</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="ka">
+                                        <property name="placeholder_text">Ka</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">Ya</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="ya">
+                                        <property name="placeholder_text">Ya</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <property name="margin-top">10</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">Kb</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="kb">
+                                        <property name="placeholder_text">Kb</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">Yb</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="yb">
+                                        <property name="placeholder_text">Yb</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkButton">
+                                <property name="hexpand">True</property>
+                                <property name="margin-top">10</property>
+                                <signal name="clicked" handler="on_key_count_click" swapped="true"/>
+                                <property name="label">Рассчитать ключи</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkButton">
+                                <property name="hexpand">True</property>
+                                <property name="margin-top">10</property>
+                                <signal name="clicked" handler="on_key_exchange_click" swapped="true"/>
+                                <property name="label">Обменяться ключами</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

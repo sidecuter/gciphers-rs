@@ -65,7 +65,7 @@ impl Point {
         } else { (0, 0) }
     }
 
-    fn get_x_y_isize(&self) -> (isize, isize) {
+    pub fn get_x_y_isize(&self) -> (isize, isize) {
         if let Some((x, y)) = self.point {
             (x as isize, y as isize)
         } else { (0, 0) }
@@ -94,7 +94,7 @@ impl Point {
         (a * b) % modula
     }
 
-    fn mul(&self, n: usize) -> Self {
+    pub fn mul(&self, n: usize) -> Self {
         let point = *self;
         let mut temp = point;
         for _ in 1..n {
@@ -143,6 +143,14 @@ impl Add for Point {
 impl AddAssign for Point {
     fn add_assign(&mut self, rhs: Self) {
         *self = *self + rhs;
+    }
+}
+
+impl Default for Point {
+    fn default() -> Self {
+        Point {
+            a: 0, b: 0, modula: 0, point: None
+        }
     }
 }
 

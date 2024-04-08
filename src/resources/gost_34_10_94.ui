@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="GCiphersRsGOST94" parent="AdwBin">
+        <property name="name">gost_94</property>
+        <property name="margin-bottom">20</property>
+        <property name="margin-end">20</property>
+        <property name="margin-start">20</property>
+        <property name="margin-top">20</property>
+        <child>
+            <object class="GtkScrolledWindow">
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">p</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="p">
+                                        <property name="placeholder_text">Введите p</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">q</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="q">
+                                        <property name="placeholder_text">Введите Q</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <property name="margin-top">10</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">x</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="x">
+                                        <property name="placeholder_text">x</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">y</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="y">
+                                        <property name="placeholder_text">y</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="margin-top">10</property>
+                                <property name="orientation">horizontal</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">a</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="a">
+                                        <property name="placeholder_text">a</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">Модуль хеша</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="modula">
+                                        <property name="placeholder_text">Введите модуль хеша</property>
+                                        <property name="margin-end">10</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <property name="margin-top">10</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">ЭЦП</property>
+                                        <property name="margin-end">5</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="UIEntry" id="sign_val">
+                                        <property name="placeholder_text">Подпись</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="label">Введите текст</property>
+                                <property name="margin-top">10</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="UITextView" id="text_view"/>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="hexpand">True</property>
+                                <property name="margin-top">10</property>
+                                <property name="valign">start</property>
+                                <child>
+                                    <object class="GtkButton">
+                                        <signal name="clicked" handler="on_sign_click" swapped="true"/>
+                                        <property name="label">Подписать текст</property>
+                                        <property name="valign">center</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkBox">
+                                        <property name="hexpand">True</property>
+                                        <property name="valign">center</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton">
+                                        <signal name="clicked" handler="on_check_sign_click" swapped="true"/>
+                                        <property name="label">Проверить подпись</property>
+                                        <property name="valign">center</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

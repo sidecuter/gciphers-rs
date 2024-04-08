@@ -3,8 +3,8 @@ use rand::Rng;
 use crate::asymmetric::pow_mod;
 
 pub fn gen_keys(a: usize, n: usize) -> Result<(usize, usize), Box<dyn Error>> {
-    if a >= n {
-        Err("a не может быть больше n")?;
+    if a >= n || a <= 1{
+        Err("введены некорректные начальные значения")?;
     }
     let mut rnd = rand::thread_rng();
     let k = rnd.gen_range(2..n-1);

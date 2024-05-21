@@ -8,7 +8,7 @@ pub fn gen_keys(a: usize, n: usize) -> Result<(usize, usize), Box<dyn Error>> {
     }
     let mut rnd = rand::thread_rng();
     let k = rnd.gen_range(2..n-1);
-    let y = get_y(a, k, n);
+    let y = get_y(a, n, k);
     Ok((k, y))
 }
 

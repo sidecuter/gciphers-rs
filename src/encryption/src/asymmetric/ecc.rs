@@ -95,8 +95,8 @@ impl Point {
     }
 
     pub fn mul(&self, n: usize) -> Self {
-        let point = *self;
-        let mut temp = point;
+        let point = self.clone();
+        let mut temp = point.clone();
         for _ in 1..n {
             temp += point;
         }

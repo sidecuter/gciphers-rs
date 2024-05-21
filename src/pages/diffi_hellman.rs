@@ -110,10 +110,14 @@ mod imp {
             let n = self.n.get().text().to_string().parse::<usize>().expect("Нежданчик");
             let k1 = get_k(n, ka, yb);
             let k2 = get_k(n, kb, ya);
-            if k1 == k2 {
-                window.show_message("Ключи обменены верно");
+            if k1 == 1 || k2 == 1 {
+                window.show_message("Общий ключи не могут равняться 1");
             } else {
-                window.show_message("Ключи обменены неверно");
+                if k1 == k2 {
+                    window.show_message("Ключи обменены верно");
+                } else {
+                    window.show_message("Ключи обменены неверно");
+                }
             }
         }
     }

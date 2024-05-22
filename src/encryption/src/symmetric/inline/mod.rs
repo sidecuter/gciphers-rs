@@ -136,28 +136,6 @@ impl Register {
     }
 }
 
-struct BitIter {
-    value: u128,
-    mask: u128,
-    find: bool
-}
-
-impl Iterator for BitIter {
-    type Item = u8;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        while !self.find {
-            if self.value & self.mask != 0 {
-                self.find = true;
-            }
-            self.mask >>= 1;
-        }
-        if self.mask == 0 { return None; }
-        let result = if self.value & self.mask != 0 { 1 } else { 0 };
-        Some(result)
-    }
-}
-
 fn join_gamma(gamma: &[RegIter<u128>]) -> Vec<u8> {
     let mut result = Vec::new();
     let mut val = 0;

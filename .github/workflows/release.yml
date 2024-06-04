@@ -17,7 +17,6 @@ jobs:
           update: true
           install: >-
             mingw-w64-x86_64-gtk4
-            mingw-w64-x86_64-vala
             mingw-w64-x86_64-toolchain
             base-devel
             mingw-w64-x86_64-libgee

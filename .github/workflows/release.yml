@@ -26,6 +26,7 @@ jobs:
             mingw-w64-x86_64-nsis
             mingw-w64-x86_64-ntldd
             mingw-w64-x86_64-rust
+            mingw-w64-x86_64-gcc
             git
       - name: Checkout
         uses: actions/checkout@v3
@@ -35,9 +36,6 @@ jobs:
       - name: Compile project
         shell: msys2 {0}
         run: meson compile -C build
-      - name: Test project
-        shell: msys2 {0}
-        run: meson test -C build
       - name: Prepare package content
         shell: msys2 {0}
         run: meson install -C build

@@ -39,28 +39,26 @@ else
 endif
 
 
-# if host_machine.system() == 'windows'
-#   cmd = [
-#     'compile.sh', meson.project_build_root()  / 'cargo-home', 
-#     cargo_bin, 'build', cargo_opt,
-#     meson.project_build_root() / 'src' / rust_target / meson.project_name(),
-#     meson.project_build_root() / meson.project_name()
-#   ]
-#   rust_exec = meson.project_name() + '.exe'
-# else
+if host_machine.system() == 'windows'
+  cmd = [
+    'compile.sh', meson.project_build_root()  / 'cargo-home', 
+    cargo_bin, 'build', cargo_opt,
+    meson.project_build_root() / 'src' / rust_target / meson.project_name(),
+    meson.project_build_root() / meson.project_name()
+  ]
+else
   cmd = [
     'env', cargo_env,
     cargo_bin, 'build',
     cargo_opt, '&&', 'cp', 'src' / rust_target / meson.project_name(), '@OUTPUT@',
   ]
-  rust_exec = meson.project_name()
-#endif
+endif
 
 cargo_build = custom_target(
   'cargo-build',
   build_by_default: true,
   build_always_stale: true,
-  output: rust_exec,
+  output: meson.project_name(),
   console: true,
   install: true,
   install_dir: get_option('bindir'),

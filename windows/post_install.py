@@ -187,7 +187,7 @@ def create_nsis_script():
 !define VERSION "1.0.0.0"
 !define COPYRIGHT "Sidecuter © 2024"
 !define DESCRIPTION "Application"
-!define LICENSE_TXT "{SOURCE_ROOT}\\LICENSE"
+!define LICENSE_TXT "{SOURCE_ROOT}\\COPYING"
 !define INSTALLER_NAME "{SOURCE_ROOT}\\gciphers-rs.exe"
 !define MAIN_APP_EXE "bin\\gciphers-rs.exe"
 !define INSTALL_TYPE "SetShellVarContext all"

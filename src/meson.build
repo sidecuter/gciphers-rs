@@ -29,27 +29,40 @@ run_command(
 cargo_bin  = find_program('cargo')
 cargo_opt  = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml' ]
 cargo_opt += [ '--target-dir', meson.project_build_root()  / 'src' ]
+cargo_env  = [ 'CARGO_HOME=' + meson.project_build_root()  / 'cargo-home' ]
 
 if get_option('buildtype') == 'release'
   cargo_opt += [ '--release' ]
   rust_target = 'release'
 else
-  cargo_opt += [ ' ' ]
   rust_target = 'debug'
+endif
+
+
+if host_machine.system() == 'windows'
+  cmd = [
+    'compile.sh', meson.project_build_root()  / 'cargo-home', 
+    cargo_bin, 'build', cargo_opt,
+    meson.project_build_root() / 'src' / rust_target / meson.project_name(),
+    meson.project_build_root() / '@OUTPUT@'
+  ]
+  rust_exec = meson.project_name() + '.exe'
+else
+  cmd = [
+    'env', cargo_env,
+    cargo_bin, 'build',
+    cargo_opt, '&&', 'cp', 'src' / rust_target / meson.project_name(), '@OUTPUT@',
+  ]
+  rust_exec = meson.project_name()
 endif
 
 cargo_build = custom_target(
   'cargo-build',
   build_by_default: true,
   build_always_stale: true,
-  output: meson.project_name(),
+  output: rust_exec,
   console: true,
   install: true,
   install_dir: get_option('bindir'),
-  command: [
-    'compile.sh', meson.project_build_root()  / 'cargo-home', 
-    cargo_bin, 'build', cargo_opt,
-    meson.project_build_root() / 'src' / rust_target / meson.project_name(),
-    meson.project_build_root() / '@OUTPUT@'
-  ]
+  command: cmd
 )

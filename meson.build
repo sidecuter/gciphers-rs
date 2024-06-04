@@ -1,15 +1,19 @@
-project('gciphers-rs', 'rust', 
-          version: '0.1.0',
+project('gciphers-rs', ['rust', 'c'], 
+          version: '1.0.0',
     meson_version: '>= 0.62.0',
   default_options: [ 'warning_level=2', 'werror=false', ],
 )
 
-i18n = import('i18n')
+app_id = meson.project_name()
+
 gnome = import('gnome')
+
+if host_machine.system() == 'windows'
+  subdir('windows')
+endif
 
 subdir('data')
 subdir('src')
-subdir('po')
 
 gnome.post_install(
      glib_compile_schemas: true,

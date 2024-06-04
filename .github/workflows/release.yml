@@ -1,0 +1,55 @@
+name: Github release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            mingw-w64-x86_64-gtk4
+            mingw-w64-x86_64-toolchain
+            base-devel
+            mingw-w64-x86_64-libgee
+            mingw-w64-x86_64-libadwaita
+            mingw-w64-x86_64-desktop-file-utils
+            mingw-w64-x86_64-meson
+            mingw-w64-x86_64-nsis
+            mingw-w64-x86_64-ntldd
+            mingw-w64-x86_64-rust
+            mingw-w64-x86_64-gcc
+            git
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup project
+        shell: msys2 {0}
+        run: meson setup build --prefix="C:/Program Files (x86)/GCiphers-rs" --buildtype=release
+      - name: Compile project
+        shell: msys2 {0}
+        run: meson compile -C build
+      - name: Prepare package content
+        shell: msys2 {0}
+        run: meson install -C build
+      - name: Build package
+        shell: msys2 {0}
+        run: makensis "C:/Program Files (x86)/GCiphers-rs/gciphers-rs.nsi"
+      - name: Clear build artifacts
+        shell: msys2 {0}
+        run: |
+          rm -rf "C:/Program Files (x86)/GCiphers-rs"
+          rm -rf build
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          generate_release_notes: true
+          files: gciphers-rs.exe

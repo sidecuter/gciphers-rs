@@ -1,0 +1,19 @@
+1 VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "080904E4"
+    BEGIN
+      VALUE "CompanyName", "sidecuter"
+      VALUE "FileDescription", "Encoding and decoding text in various ciphers"
+      VALUE "FileVersion", @VERSION@
+      VALUE "InternalName", @APP_ID@
+      VALUE "LegalCopyright", "Sidecuter"
+      VALUE "OriginalFilename", "@APP_ID_FIXED@.exe"
+      VALUE "ProductName", @APP_ID@
+      VALUE "ProductVersion", @VERSION@
+    END
+  END
+END

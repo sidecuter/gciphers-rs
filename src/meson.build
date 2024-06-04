@@ -44,7 +44,7 @@ if host_machine.system() == 'windows'
     'compile.sh', meson.project_build_root()  / 'cargo-home', 
     cargo_bin, 'build', cargo_opt,
     meson.project_build_root() / 'src' / rust_target / meson.project_name(),
-    meson.project_build_root() / '@OUTPUT@'
+    meson.project_build_root() / meson.project_name()
   ]
   rust_exec = meson.project_name() + '.exe'
 else

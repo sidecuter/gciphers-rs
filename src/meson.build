@@ -34,6 +34,7 @@ if get_option('buildtype') == 'release'
   cargo_opt += [ '--release' ]
   rust_target = 'release'
 else
+  cargo_opt += [ ' ' ]
   rust_target = 'debug'
 endif
 

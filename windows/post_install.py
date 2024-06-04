@@ -181,7 +181,7 @@ def create_nsis_script():
     content = get_all_content_of_dir(INSTALL_PREFIX)
     with open(os.path.join(INSTALL_PREFIX, "gciphers-rs.nsi"), "wt") as file:
         file.write(f'''
-!define APP_NAME "gciphers-rs"
+!define APP_NAME "GCiphers-rs"
 !define COMP_NAME "Sidecuter"
 !define WEB_SITE "https://github.com/sidecuter/gciphers-rs"
 !define VERSION "1.0.0.0"
@@ -189,7 +189,7 @@ def create_nsis_script():
 !define DESCRIPTION "Application"
 !define LICENSE_TXT "{SOURCE_ROOT}\\LICENSE"
 !define INSTALLER_NAME "{SOURCE_ROOT}\\gciphers-rs.exe"
-!define MAIN_APP_EXE "bin\\com.github.sidecuter.gciphers-rs.exe"
+!define MAIN_APP_EXE "bin\\gciphers-rs.exe"
 !define INSTALL_TYPE "SetShellVarContext all"
 !define REG_ROOT "HKLM"''')
         file.write("""
@@ -216,7 +216,7 @@ Caption "${APP_NAME}"
 OutFile "${INSTALLER_NAME}"
 BrandingText "${APP_NAME}"
 InstallDirRegKey "${REG_ROOT}" "${REG_APP_PATH}" ""
-InstallDir "C:\\Program Files (x86)\\gciphers-rs"
+InstallDir "C:\\Program Files (x86)\\GCiphers-rs"
 
 ######################################################################
 
@@ -236,7 +236,7 @@ InstallDir "C:\\Program Files (x86)\\gciphers-rs"
 !endif
 
 !ifdef REG_START_MENU
-!define MUI_STARTMENUPAGE_DEFAULTFOLDER "gciphers-rs"
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "GCiphers-rs"
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "${REG_ROOT}"
 !define MUI_STARTMENUPAGE_REGISTRY_KEY "${UNINSTALL_PATH}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "${REG_START_MENU}"
@@ -308,10 +308,10 @@ CreateShortCut "$SMPROGRAMS\\$SM_Folder\\Uninstall ${APP_NAME}.lnk" "$INSTDIR\\u
 !endif
 
 !ifndef REG_START_MENU
-CreateDirectory "$SMPROGRAMS\\gciphers-rs"
-CreateShortCut "$SMPROGRAMS\\gciphers-rs\\${APP_NAME}.lnk" "$INSTDIR\\${MAIN_APP_EXE}"
+CreateDirectory "$SMPROGRAMS\\GCiphers-rs"
+CreateShortCut "$SMPROGRAMS\\GCiphers-rs\\${APP_NAME}.lnk" "$INSTDIR\\${MAIN_APP_EXE}"
 CreateShortCut "$DESKTOP\\${APP_NAME}.lnk" "$INSTDIR\\${MAIN_APP_EXE}"
-CreateShortCut "$SMPROGRAMS\\gciphers-rs\\Uninstall ${APP_NAME}.lnk" "$INSTDIR\\uninstall.exe"
+CreateShortCut "$SMPROGRAMS\\GCiphers-rs\\Uninstall ${APP_NAME}.lnk" "$INSTDIR\\uninstall.exe"
 
 !endif
 
@@ -349,11 +349,11 @@ RmDir "$SMPROGRAMS\\$SM_Folder"
 !endif
 
 !ifndef REG_START_MENU
-Delete "$SMPROGRAMS\\gciphers-rs\\${APP_NAME}.lnk"
-Delete "$SMPROGRAMS\\gciphers-rs\\Uninstall ${APP_NAME}.lnk"
+Delete "$SMPROGRAMS\\GCiphers-rs\\${APP_NAME}.lnk"
+Delete "$SMPROGRAMS\\GCiphers-rs\\Uninstall ${APP_NAME}.lnk"
 Delete "$DESKTOP\\${APP_NAME}.lnk"
 
-RmDir "$SMPROGRAMS\\gciphers-rs"
+RmDir "$SMPROGRAMS\\GCiphers-rs"
 !endif
 
 ; delete variable
@@ -380,7 +380,7 @@ def main():
     deps_finder = DepsFinder()
     clear_deps_search(
         deps_finder.find_msys_deps,
-        INSTALL_PREFIX + "/bin/com.github.sidecuter.gciphers-rs.exe",
+        INSTALL_PREFIX + "/bin/gciphers-rs.exe",
         8,
     )
     deps_finder.deps_list.append("gdbus.exe")

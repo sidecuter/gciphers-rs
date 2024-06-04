@@ -27,7 +27,7 @@ configure_file(
 )
 
 windows = import('windows')
-gciphers_sources += windows.compile_resources(
+windows.compile_resources(
     join_paths(meson.current_build_dir(), 'gciphers-rs.rc'), 
     join_paths(meson.current_build_dir(), 'version.rc'),
 )

@@ -12,10 +12,11 @@ impl Alphabet {
     }
 
     pub fn get(&self, index: usize) -> char {
-        match self.alphabet.chars().nth(index) {
-            Some(letter) => letter,
-            None => panic!("Данная функция подразумевает, что передаваемые данные были предварительно проверены")
-        }
+        self
+            .alphabet
+            .chars()
+            .nth(index)
+            .expect("Данная функция подразумевает, что передаваемые данные были предварительно проверены")
     }
 
     pub fn contains(&self, letter: char) -> bool {
@@ -23,10 +24,11 @@ impl Alphabet {
     }
 
     pub fn index_of(&self, letter: char) -> usize {
-        match self.alphabet.chars().position(|x| x == letter) {
-            Some(index) => index,
-            None => panic!("Данная функция подразумевает, что передаваемые данные были предварительно проверены")
-        }
+        self
+            .alphabet
+            .chars()
+            .position(|x| x == letter)
+            .expect("Данная функция подразумевает, что передаваемые данные были предварительно проверены")
     }
 
     pub fn new() -> Alphabet {

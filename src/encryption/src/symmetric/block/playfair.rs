@@ -36,8 +36,8 @@ impl PlayfairTable {
              *self.data.get(i2 * self.cols + j2).unwrap())
         }
         else if j1 == j2 {
-            let i1 = modd(i1 as isize + dir, self.cols);
-            let i2 = modd(i2 as isize + dir, self.cols);
+            let i1 = modd(i1 as isize + dir, self.cols-1);
+            let i2 = modd(i2 as isize + dir, self.cols-1);
             (*self.data.get(i1 * self.cols + j1).unwrap(),
              *self.data.get(i2 * self.cols + j2).unwrap())
         }

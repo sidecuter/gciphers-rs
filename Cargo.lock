@@ -92,7 +92,7 @@ checksum = "11157ac094ffbdde99aa67b23417ebdd801842852b500e395a45a9c0aac03e4a"
 
 [[package]]
 name = "encryption"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "hex",
  "itertools",
@@ -183,7 +183,7 @@ dependencies = [
 
 [[package]]
 name = "gciphers-rs"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "encryption",
  "gettext-rs",

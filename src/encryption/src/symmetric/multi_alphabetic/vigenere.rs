@@ -2,7 +2,7 @@ use std::error::Error;
 use crate::alphabet::Alphabet;
 use crate::errors::{InvalidSize, NullSizedValue};
 use crate::methods::modd;
-use crate::symmetric::multi_alphabetic::encrypt as m_encrypt;
+use super::encrypt as m_encrypt;
 
 pub fn encrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
     let alphabet = Alphabet::new();

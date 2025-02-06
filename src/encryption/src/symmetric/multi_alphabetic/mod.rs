@@ -10,7 +10,7 @@ fn proto(alphabet: &Alphabet, phrase: &str, key: &str, reverse: bool) -> Result<
     validate_two(alphabet, phrase, key)?;
     let mut cur_key: usize = 0;
     let key_length = key.chars().count();
-    let result: String = phrase.chars().map(|letter| {
+    let result: String = phrase.chars().map(move |letter| {
         let shift = alphabet.index_of(key.chars().nth(cur_key).unwrap()) as isize;
         let pos = alphabet.index_of(letter) as isize;
         cur_key = modd((cur_key + 1) as isize, key_length);

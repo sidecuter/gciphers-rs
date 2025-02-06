@@ -1,15 +1,15 @@
 use std::error::Error;
 use crate::alphabet::Alphabet;
-use crate::symmetric::multi_alphabetic;
+use super::{encrypt as m_encrypt, decrypt as m_decrypt};
 
 pub fn encrypt(phrase: &str) -> Result<String, Box<dyn Error>> {
     let alphabet: Alphabet = Alphabet::new();
-    multi_alphabetic::encrypt(&alphabet, phrase, alphabet.alphabet())
+    m_encrypt(&alphabet, phrase, alphabet.alphabet())
 }
 
 pub fn decrypt(phrase: &str) -> Result<String, Box<dyn Error>> {
     let alphabet: Alphabet = Alphabet::new();
-    multi_alphabetic::decrypt(&alphabet, phrase, alphabet.alphabet())
+    m_decrypt(&alphabet, phrase, alphabet.alphabet())
 }
 
 #[cfg(test)]

@@ -1,22 +1,18 @@
+use std::collections::HashSet;
 use std::error::Error;
 use crate::alphabet::Alphabet;
 use crate::errors::{InvalidIndex, InvalidKeyError};
 
 fn get_order (alphabet: &Alphabet, key: &str) -> Result<Vec<usize>, Box<dyn Error>> {
-    let mut result: Vec<usize> = Vec::new();
-    for _ in key.chars() { result.push(0) };
-    let mut letter_indexes: Vec<usize> = Vec::new();
-    for letter in key.chars() {
-        let pos = alphabet.index_of(letter);
-        letter_indexes.push(pos);
-    }
-    let mut positions = letter_indexes.clone();
+    let mut result: Vec<usize> = vec![0; key.chars().count()];
+    let mut letter_indexes: Vec<usize> = key.chars().map(|letter| alphabet.index_of(letter)).collect();
+    let positions: HashSet<usize> = letter_indexes.iter().cloned().collect();
+    let mut positions: Vec<usize> = positions.into_iter().collect();
     positions.sort();
     let mut i: usize = 0;
     for position in positions {
         while letter_indexes.contains(&position) {
-            let pos = letter_indexes.iter(
-            ).position(|x| x == &position).ok_or(InvalidIndex)?;
+            let pos = letter_indexes.iter().position(|x| x == &position).ok_or(InvalidIndex)?;
             if let Some(elem) = result.get_mut(pos) { *elem = i + 1; }
             if let Some(elem) = letter_indexes.get_mut(pos) { *elem = alphabet.len(); }
             i += 1;
@@ -44,8 +40,7 @@ fn sort(order: &mut [usize], data: &mut [Vec<isize>]) {
             i += 1;
             continue;
         }
-        let index = if let Some(index) = order.get(i) { *index - 1 }
-        else { continue };
+        let index = index - 1;
         data.swap(i, index);
         order.swap(i, index);
     }
@@ -107,9 +102,8 @@ fn prepare_keys(keys: &[usize]) -> Result<Vec<usize>, Box<dyn Error>> {
 pub fn decrypt(phrase: &str, key: &str) -> Result<String, Box<dyn Error>> {
     let alphabet = Alphabet::new();
     let (keys, row) = get_rows_and_keys(&alphabet, phrase, key)?;
-    let mut buffer: Vec<Vec<isize>> = Vec::new();
+    let mut buffer: Vec<Vec<isize>> = vec![Vec::new(); keys.len()];
     let mut letter = phrase.chars();
-    for _ in 0..keys.len() { buffer.push(Vec::new()); }
     let empty_slots = get_empty_slots(
         &keys,
         row * keys.len() - phrase.chars().count()

@@ -38,13 +38,10 @@ impl Table {
 
 pub fn encrypt(phrase: &str, rows: &str, columns: &str) -> Result<String, Box<dyn Error>> {
     let table = validate(phrase, rows, columns)?;
-    let mut result = String::new();
-    for letter in phrase.chars() {
+    Ok(phrase.chars().map(move |letter| {
         let (row, column) = table.index_of(letter);
-        result.push_str(&row.to_string());
-        result.push_str(&column.to_string());
-    }
-    Ok(result)
+        format!("{row}{column}")
+    }).collect())
 }
 
 pub fn decrypt(phrase: &str, rows: &str, cols: &str) -> Result<String, Box<dyn Error>> {
